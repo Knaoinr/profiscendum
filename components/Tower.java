@@ -1,7 +1,13 @@
 package components;
 
-import java.awt.*;
-import javax.swing.*;
+import javax.swing.JLayeredPane;
+
+import components.Flag.Pattern;
+
+import javax.swing.JComponent;
+import java.awt.Graphics;
+import java.awt.Color;
+import java.awt.Dimension;
 
 public class Tower extends JLayeredPane {
     private static final long serialVersionUID = 1L;
@@ -9,6 +15,7 @@ public class Tower extends JLayeredPane {
     public Door leftDoor, rightDoor;
 
     public Tower() {
+        //background
         JComponent tower = new JComponent() {
             private static final long serialVersionUID = 1L;
 
@@ -30,8 +37,9 @@ public class Tower extends JLayeredPane {
         };
         tower.setLocation(0, 0);
         tower.setSize(getPreferredSize());
-        add(tower, Integer.valueOf(0));
+        add(tower, Integer.valueOf(1));
 
+        //doors
         leftDoor = new Door(10);
         rightDoor = new Door(10);
         leftDoor.setLocation(2, 177);
@@ -40,6 +48,19 @@ public class Tower extends JLayeredPane {
         rightDoor.setSize(rightDoor.maxStrength, 48);
         add(leftDoor, Integer.valueOf(10));
         add(rightDoor, Integer.valueOf(10));
+
+        //ladder
+        Ladder ladder = new Ladder();
+        ladder.setBounds(35, 10, 10, 140);
+        add(ladder, Integer.valueOf(10));
+
+        //flags
+        Flag leftFlag = new Flag(Pattern.PATTERNED);
+        Flag rightFlag = new Flag(Pattern.PATTERNED);
+        leftFlag.setBounds(6, -20, 4, 21);
+        rightFlag.setBounds(51, -20, 4, 21);
+        add(leftFlag, Integer.valueOf(0));
+        add(rightFlag, Integer.valueOf(0));
     }
 
     //size info
