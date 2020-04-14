@@ -1,13 +1,11 @@
-package components;
+package profiscendum.components;
 
 import javax.swing.JLayeredPane;
-
-import components.Flag.Pattern;
-
 import javax.swing.JComponent;
 import java.awt.Graphics;
 import java.awt.Color;
 import java.awt.Dimension;
+import profiscendum.components.Flag.Pattern;
 
 public class Tower extends JLayeredPane {
     private static final long serialVersionUID = 1L;

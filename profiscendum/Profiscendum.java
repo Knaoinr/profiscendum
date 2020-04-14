@@ -1,3 +1,5 @@
+package profiscendum;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -6,7 +8,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import components.*;
+import javax.swing.plaf.basic.BasicScrollBarUI;
+import profiscendum.components.*;
+import profiscendum.characters.*;
+import profiscendum.characters.Character.Direction;
 
 public class Profiscendum extends JFrame implements KeyListener {
 
@@ -14,14 +19,15 @@ public class Profiscendum extends JFrame implements KeyListener {
 
     // MARK: - Objects
 
-    private String[] alphabet = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q",
-            "r", "s", "t", "u", "v", "w", "x", "y", "z" };
+    private String[] alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q",
+            "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
     private String input;
     private Random rand;
 
     private JLayeredPane mainPanel;
+    private JLayeredPane characterPanel;
 
-    //Labels & buttons
+    // Labels & buttons
     private JPanel startPanel;
     private JLabel startLabel;
     private JLabel highScoreLabel;
@@ -32,11 +38,14 @@ public class Profiscendum extends JFrame implements KeyListener {
     private JTextArea howToPlayArea;
     private JLabel randomLetterLabel;
 
-    //Game loop variables
+    // Game loop variables
     private boolean running = false;
     private boolean paused = false;
     private int fps = 30;
     private int frameCount = 0;
+
+    // Characters
+    private MainCharacter MC;
 
     private Tower leftTower, rightTower;
 
@@ -63,12 +72,13 @@ public class Profiscendum extends JFrame implements KeyListener {
             BufferedReader f = new BufferedReader(new FileReader("highScore.txt"));
             highScore = Integer.parseInt(f.readLine());
             f.close();
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
 
-        //Add elements
+        // Add elements
         setupComponents();
 
-        //see!
+        // see!
         cp.validate();
         setVisible(true);
     }
@@ -76,11 +86,11 @@ public class Profiscendum extends JFrame implements KeyListener {
     // MARK: - Adding elements
 
     private void setupComponents() {
-        //background
+        // background
         JComponent background = new JComponent() {
             private static final long serialVersionUID = 1L;
 
-            //paint background color
+            // paint background color
             public void paintComponent(Graphics g) {
                 g.setColor(new Color(192, 163, 148));
                 g.fillRect(0, 0, 840, 420);
@@ -92,7 +102,11 @@ public class Profiscendum extends JFrame implements KeyListener {
         background.setSize(getSize());
         mainPanel.add(background, Integer.valueOf(0));
 
-        //towers
+        characterPanel = new JLayeredPane();
+        characterPanel.setBounds(0, 0, 840, 420);
+        mainPanel.add(characterPanel, Integer.valueOf(30));
+
+        // towers
         leftTower = new Tower();
         rightTower = new Tower();
         leftTower.setLocation(50, 155);
@@ -102,7 +116,7 @@ public class Profiscendum extends JFrame implements KeyListener {
         mainPanel.add(leftTower, Integer.valueOf(10));
         mainPanel.add(rightTower, Integer.valueOf(10));
 
-        //labels
+        // labels
         randomLetterLabel = new JLabel();
         randomLetterLabel.setHorizontalAlignment(SwingConstants.CENTER);
         randomLetterLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
@@ -110,10 +124,11 @@ public class Profiscendum extends JFrame implements KeyListener {
         randomLetterLabel.setBounds(0, 380, 840, 40);
         mainPanel.add(randomLetterLabel, JLayeredPane.PALETTE_LAYER, Integer.valueOf(0));
 
-        //start panel
+        // start panel
         startPanel = new JPanel(new GridBagLayout()) {
             private static final long serialVersionUID = 1L;
-            //grey background
+
+            // grey background
             public void paintComponent(Graphics g) {
                 g.setColor(new Color(0f, 0f, 0f, 0.7f));
                 g.fillRect(0, 0, 840, 420);
@@ -130,24 +145,26 @@ public class Profiscendum extends JFrame implements KeyListener {
         c.gridwidth = 2;
         c.ipady = 10;
         startLabel.addMouseListener(new MouseAdapter() {
-            //bold on hover
+            // bold on hover
             @Override
             public void mouseEntered(MouseEvent e) {
                 startLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, 40));
             }
-            //unbold on exit
+
+            // unbold on exit
             @Override
             public void mouseExited(MouseEvent e) {
                 startLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
             }
-            //start on click
+
+            // start on click
             @Override
             public void mouseClicked(MouseEvent e) {
-                //if game not started (vs RESUME GAME)
+                // if game not started (vs RESUME GAME)
                 if (startLabel.getText().equals("START GAME")) {
                     setupCharacters();
                 }
-                //start/resume movement & timers
+                // start/resume movement & timers
                 addListeners();
                 running = true;
                 paused = false;
@@ -173,17 +190,19 @@ public class Profiscendum extends JFrame implements KeyListener {
         howToPlayLabel.setForeground(new Color(1f, 1f, 1f, 0.6f));
         c.gridx = 1;
         howToPlayLabel.addMouseListener(new MouseAdapter() {
-            //bold on hover
+            // bold on hover
             @Override
             public void mouseEntered(MouseEvent e) {
                 howToPlayLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, 20));
             }
-            //unbold on exit
+
+            // unbold on exit
             @Override
             public void mouseExited(MouseEvent e) {
                 howToPlayLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
             }
-            //change labels on click
+
+            // change labels on click
             @Override
             public void mouseClicked(MouseEvent e) {
                 startPanel.removeAll();
@@ -237,17 +256,19 @@ public class Profiscendum extends JFrame implements KeyListener {
         backLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
         backLabel.setForeground(new Color(1f, 1f, 1f, 0.6f));
         backLabel.addMouseListener(new MouseAdapter() {
-            //bold on hover
+            // bold on hover
             @Override
             public void mouseEntered(MouseEvent e) {
                 backLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, 40));
             }
-            //unbold on exit
+
+            // unbold on exit
             @Override
             public void mouseExited(MouseEvent e) {
                 backLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
             }
-            //change labels on click
+
+            // change labels on click
             @Override
             public void mouseClicked(MouseEvent e) {
                 startPanel.removeAll();
@@ -273,52 +294,74 @@ public class Profiscendum extends JFrame implements KeyListener {
         howToPlayArea = new JTextArea();
         howToPlayArea.setLineWrap(true);
         howToPlayArea.setWrapStyleWord(true);
-        howToPlayArea.setSize(1, 1); //will expand to size
+        howToPlayArea.setSize(1, 1); // will expand to size
         howToPlayArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
         howToPlayArea.setForeground(new Color(1f, 1f, 1f, 0.8f));
         howToPlayArea.setBackground(new Color(56, 49, 44));
-        howToPlayArea.setText(
-        "PROFISCENDUM\n" +
-        "\n" +
-        "You are in charge of protecting the small fortified settlement of Oppidum " +
-        "(well, not as much in charge of as the person who was roped into the position on account of their debt). " +
-        "However, two large armies are fighting each other near you, which ends up in them both fighting to control your settlement. " +
-        "You are an inferior, unexperienced fighter who can only reliably use a bow and arrow. " +
-        "Your settlement is guaranteed to go down in this battle... but little known to the innocent civilians around you, " +
-        "you have an escape dragon that can take you and whoever else you want to safety. " +
-        "If only you were a good enough fighter to save them all, you wouldn’t have had to leave so many of them behind to die. " +
-        "But alas... when you think you’re gaining their trust, you might accidentally set off a bomb, or pop out a baby, or " +
-        "call the wrong dragon to save you. Is it even worth saving anyone else? How badly will things go before you escape?\n" +
-        "\n" +
-        "\n" +
-        "\n" +
-        "CONTROLS\n" +
-        "\n" +
-        "← → : Move in the left or right direction.\n" +
-        "↑ : Jump or climb a ladder.\n" +
-        "↓ : Crouch or descend a ladder.\n" +
-        "SPACE: Shoot your bow and arrow in whatever direction you're facing.\n" +
-        "ENTER: Call your escape dragon, which will arrive one minute after you call them and depart 30 seconds after that.\n" +
-        "\n" +
-        "As for the rest of your abilities, each one can be called by a different key on your keyboard (A-Z). " +
-        "However, they change positions between every game. You have no idea which one you're using when you press a key. " +
-        "A short description will only show up once you press the key. For your sake, here are longer descriptions of each.\n" +
-        "\n" +
-        "Open and close doors: This toggles the state of random doors. Weaker doors are more likely to flip than stronger doors. " +
-        "(The probability of a door flipping is 1/its current strength.)\n" +
-        "\n");
+        howToPlayArea.setText("PROFISCENDUM\n" + "\n"
+                + "You are in charge of protecting the small fortified settlement of Oppidum "
+                + "(well, not as much in charge of as the person who was roped into the position on account of their debt). "
+                + "However, two large armies are fighting each other near you, which ends up in them both fighting to control your settlement. "
+                + "You are an inferior, unexperienced fighter who can only reliably use a bow and arrow. "
+                + "Your settlement is guaranteed to go down in this battle... but little known to the innocent civilians around you, "
+                + "you have an escape dragon that can take you and whoever else you want to safety. "
+                + "If only you were a good enough fighter to save them all, you wouldn’t have had to leave so many of them behind to die. "
+                + "But alas... when you think you’re gaining their trust, you might accidentally set off a bomb, or pop out a baby, or "
+                + "call the wrong dragon to save you. Is it even worth saving anyone else? How badly will things go before you escape?\n"
+                + "\n" + "\n" + "\n" + "CONTROLS\n" + "\n" + "← → : Move in the left or right direction.\n"
+                + "↑ : Jump or climb a ladder.\n" + "↓ : Crouch or descend a ladder.\n"
+                + "SPACE: Shoot your bow and arrow in whatever direction you're facing.\n"
+                + "ENTER: Call your escape dragon, which will arrive one minute after you call them and depart 30 seconds after that.\n"
+                + "\n"
+                + "As for the rest of your abilities, each one can be called by a different key on your keyboard (A-Z). "
+                + "However, they change positions between every game. You have no idea which one you're using when you press a key. "
+                + "A short description will only show up once you press the key. For your sake, here are longer descriptions of each.\n"
+                + "\n"
+                + "Open and close doors: This toggles the state of random doors. Weaker doors are more likely to flip than stronger doors. "
+                + "(The probability of a door flipping is 1/its current strength.)\n" + "\n");
 
         howToPlayScroll = new JScrollPane(howToPlayArea);
         howToPlayScroll.setBorder(null);
         howToPlayScroll.setBackground(new Color(56, 49, 44));
         howToPlayScroll.getVerticalScrollBar().setUnitIncrement(3);
-        //TODO: Make scroll bar dark
+        howToPlayScroll.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+            @Override 
+            protected void configureScrollBarColors() {
+                this.thumbColor = new Color(125, 122, 120);
+                this.thumbHighlightColor = new Color(0, 0, 0, 0);
+                this.thumbDarkShadowColor = thumbColor;
+                this.thumbLightShadowColor = thumbColor;
+                this.trackColor = new Color(56, 49, 44);
+            }
+
+            @Override
+            protected JButton createDecreaseButton(int orientation) {
+                JButton button = new JButton();
+                Dimension nothing = new Dimension(0,0);
+                button.setPreferredSize(nothing);
+                button.setMinimumSize(nothing);
+                button.setMaximumSize(nothing);
+                return button;
+            }
+            @Override
+            protected JButton createIncreaseButton(int orientation) {
+                JButton button = new JButton();
+                Dimension nothing = new Dimension(0,0);
+                button.setPreferredSize(nothing);
+                button.setMinimumSize(nothing);
+                button.setMaximumSize(nothing);
+                return button;
+            }
+        });
 
         mainPanel.add(startPanel, JLayeredPane.MODAL_LAYER, Integer.valueOf(0));
     }
 
     private void setupCharacters() {
         //TODO: setup characters for new game
+        MC = new MainCharacter();
+        MC.setBounds(MC.x, MC.y, MC.width, MC.height);
+        characterPanel.add(MC, Integer.valueOf(0));
     }
 
     private void addListeners() {
@@ -341,27 +384,31 @@ public class Profiscendum extends JFrame implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        input = KeyEvent.getKeyText(e.getKeyCode()).toLowerCase();
+        input = KeyEvent.getKeyText(e.getKeyCode()).toUpperCase();
         switch (input) {
             case "␣":
-            case "space":
+            case "SPACE":
                 break;
             case "↑":
-            case "up":
+            case "UP":
                 break;
             case "↓":
-            case "down":
+            case "DOWN":
                 break;
             case "→":
-            case "right":
+            case "RIGHT":
+                MC.dx = 3;
+                MC.horizontalDirection = Direction.RIGHT;
                 break;
             case "←":
-            case "left":
+            case "LEFT":
+                MC.dx = -3;
+                MC.horizontalDirection = Direction.LEFT;
                 break;
             default:
             //if-else instead switch for keyboard
             if (input.equals(alphabet[0])) { //open random doors
-                randomLetterLabel.setText("Key " + input.toUpperCase() + " has caused some doors to open and close.");
+                randomLetterLabel.setText("Key " + input + " has caused some doors to open and close.");
 
                 Door door;
                 for(int i = 0; i < mainPanel.getComponentCount(); i++) {
@@ -384,7 +431,25 @@ public class Profiscendum extends JFrame implements KeyListener {
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {}
+    public void keyReleased(KeyEvent e) {
+        input = KeyEvent.getKeyText(e.getKeyCode()).toUpperCase();
+        switch (input) {
+            case "↑":
+            case "UP":
+                break;
+            case "↓":
+            case "DOWN":
+                break;
+            case "→":
+            case "RIGHT":
+                MC.dx = 0;
+                break;
+            case "←":
+            case "LEFT":
+                MC.dx = 0;
+                break;
+        }
+    }
 
     //MARK: - Game loop (credits to Eli Delventhal on java-gaming.org)
 
@@ -400,7 +465,7 @@ public class Profiscendum extends JFrame implements KeyListener {
 
     private void gameLoop() {
 
-        final double GAME_HERTZ = 15.0; //game updates/sec
+        final double GAME_HERTZ = 30.0; //game updates/sec
         //Calculate how many ns each frame should take for our target game hertz.
         final double TIME_BETWEEN_UPDATES = 1000000000 / GAME_HERTZ;
         //At the very most we will update the game this many times before a new render.
@@ -410,7 +475,7 @@ public class Profiscendum extends JFrame implements KeyListener {
         double lastRenderTime = System.nanoTime();
 
         //If we are able to get as high as this FPS, don't render again.
-        final double TARGET_FPS = 30;
+        final double TARGET_FPS = 60;
         final double TARGET_TIME_BETWEEN_RENDERS = 1000000000 / TARGET_FPS;
 
         //Simple way of finding FPS.
@@ -464,13 +529,20 @@ public class Profiscendum extends JFrame implements KeyListener {
 
     /** Sets the differences in location/appearance/etc to later be rendered. */
     private void updateGame() {
-        //
+        MC.move(mainPanel);
     }
 
     /** Renders each difference made. */
     private void drawGame(float interpolation) {
-        // gamePanel.setInterpolation(interpolation);
-        // gamePanel.repaint();
+
+        //MC
+        int drawX = (int) ((MC.x - MC.lastX) * interpolation + MC.lastX - MC.width/2);
+        int drawY = (int) ((MC.y - MC.lastY) * interpolation + MC.lastY - MC.height/2);
+        MC.setBounds(drawX, drawY, MC.getWidth(), MC.getHeight());
+        MC.lastX = drawX;
+        MC.lastY = drawY;
+
+        characterPanel.repaint();
         frameCount++;
     }
 
@@ -492,7 +564,7 @@ public class Profiscendum extends JFrame implements KeyListener {
     /**
      * Gets the bounds of a container relative to another.
      */
-    private Rectangle getRectangleRelativeTo(Container container, Container relativeTo) {
+    public static Rectangle getRectangleRelativeTo(Container container, Container relativeTo) {
         Point smallP = container.getLocationOnScreen();
         Point largeP = relativeTo.getLocationOnScreen();
         return new Rectangle(smallP.x - largeP.x, smallP.y - largeP.y, container.getWidth(), container.getHeight());

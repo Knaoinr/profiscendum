@@ -1,4 +1,4 @@
-package components;
+package profiscendum.components;
 
 import javax.swing.JComponent;
 import java.awt.Dimension;
