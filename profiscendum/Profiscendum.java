@@ -368,8 +368,7 @@ public class Profiscendum extends JFrame implements KeyListener {
                 + "\n"
                 + "Turn into a butterfly:\n"
                 + "\n"
-                + "Turn into a sponge:\n"
-                + "\n");
+                + "Turn into a sponge:\n");
 
         howToPlayScroll = new JScrollPane(howToPlayArea);
         howToPlayScroll.setBorder(null);
