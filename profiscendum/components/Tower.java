@@ -19,11 +19,6 @@ public class Tower extends JLayeredPane {
 
             // paint tower
             public void paintComponent(Graphics g) {
-                g.setColor(new Color(84, 81, 80));
-                g.fillRect(0, 0, 15, 177);
-                g.fillRect(45, 0, 15, 177);
-                g.fillRect(15, 10, 30, 15);
-                g.fillRect(15, 165, 30, 10);
                 g.setColor(new Color(84, 81, 80, 150));
                 g.fillRect(0, 177, 15, 48);
                 g.fillRect(45, 177, 15, 48);
@@ -36,6 +31,24 @@ public class Tower extends JLayeredPane {
         tower.setLocation(0, 0);
         tower.setSize(getPreferredSize());
         add(tower, Integer.valueOf(1));
+
+        //fill rest of solid blocks
+        Block[] blocks = Block.fillRect(0, 0, 15, 177);
+        for(int i = 0; i < blocks.length; i++) {
+            add(blocks[i], Integer.valueOf(2));
+        }
+        blocks = Block.fillRect(45, 0, 15, 177);
+        for(int i = 0; i < blocks.length; i++) {
+            add(blocks[i], Integer.valueOf(2));
+        }
+        blocks = Block.fillRect(15, 10, 30, 15);
+        for(int i = 0; i < blocks.length; i++) {
+            add(blocks[i], Integer.valueOf(2));
+        }
+        blocks = Block.fillRect(15, 165, 30, 10);
+        for(int i = 0; i < blocks.length; i++) {
+            add(blocks[i], Integer.valueOf(2));
+        }
 
         //doors
         leftDoor = new Door(10);

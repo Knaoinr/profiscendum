@@ -318,7 +318,58 @@ public class Profiscendum extends JFrame implements KeyListener {
                 + "A short description will only show up once you press the key. For your sake, here are longer descriptions of each.\n"
                 + "\n"
                 + "Open and close doors: This toggles the state of random doors. Weaker doors are more likely to flip than stronger doors. "
-                + "(The probability of a door flipping is 1/its current strength.)\n" + "\n");
+                + "(The probability of a door flipping is 1/its current strength.)\n"
+                + "\n"
+                + "Throw bomb:\n"
+                + "\n"
+                + "Pick people up:\n"
+                + "\n"
+                + "Set people down:\n"
+                + "\n"
+                + "Nearby people fight:\n"
+                + "\n"
+                + "Certain groups of people fight:\n"
+                + "\n"
+                + "Calling the wrong dragon:\n"
+                + "\n"
+                + "Aura of trust:\n"
+                + "\n"
+                + "Aura of mistrust:\n"
+                + "\n"
+                + "Pop out a baby:\n"
+                + "\n"
+                + "Burst from jetpack: Allows you to fly through the air using propulsion.\n"
+                + "\n"
+                + "Instant fame:\n"
+                + "\n"
+                + "Temporary paralysis:\n"
+                + "\n"
+                + "Coated in butter:\n"
+                + "\n"
+                + "Tempt people to push you off a ledge:\n"
+                + "\n"
+                + "Human bodyguard:\n"
+                + "\n"
+                + "Pop out a cobblestone:\n"
+                + "\n"
+                + "Distribute poison:\n"
+                + "\n"
+                + "Ghost mode:\n"
+                + "\n"
+                + "Fire alarm:\n"
+                + "\n"
+                + "Throw boomerang:\n"
+                + "\n"
+                + "Random character death:\n"
+                + "\n"
+                + "Cry uncontrollably:\n"
+                + "\n"
+                + "Instant kill arrow:\n"
+                + "\n"
+                + "Turn into a butterfly:\n"
+                + "\n"
+                + "Turn into a sponge:\n"
+                + "\n");
 
         howToPlayScroll = new JScrollPane(howToPlayArea);
         howToPlayScroll.setBorder(null);
@@ -391,18 +442,22 @@ public class Profiscendum extends JFrame implements KeyListener {
                 break;
             case "↑":
             case "UP":
+                if (MC.onSolidGround) {
+                    MC.dy = 16;
+                    MC.onSolidGround = false;
+                }
                 break;
             case "↓":
             case "DOWN":
                 break;
             case "→":
             case "RIGHT":
-                MC.dx = 3;
+                MC.dx = 5;
                 MC.horizontalDirection = Direction.RIGHT;
                 break;
             case "←":
             case "LEFT":
-                MC.dx = -3;
+                MC.dx = -5;
                 MC.horizontalDirection = Direction.LEFT;
                 break;
             default:
@@ -426,6 +481,61 @@ public class Profiscendum extends JFrame implements KeyListener {
                         }
                     }
                 }
+            } else if (input.equals(alphabet[1])) { //throw bomb
+                //
+            } else if (input.equals(alphabet[2])) { //pick up people
+                //
+            } else if (input.equals(alphabet[3])) { //set down people
+                //
+            } else if (input.equals(alphabet[4])) { //nearby people fight
+                //
+            } else if (input.equals(alphabet[5])) { //certain class of people fight
+                //
+            } else if (input.equals(alphabet[6])) { //dragon swoops down and eliminates a building
+                //
+            } else if (input.equals(alphabet[7])) { //aura of trust - follow, shot at less
+                //
+            } else if (input.equals(alphabet[8])) { //aura of mistrust - avoid, shot at more
+                //
+            } else if (input.equals(alphabet[9])) { //pop out a baby (not citizen, but 1 citizen will try to rescue it, and enemies will go uwu over it)
+                //
+            } else if (input.equals(alphabet[10])) { //burst from jetpack
+                randomLetterLabel.setText("Key " + input + " has caused your jetpack to sputter to life.");
+                MC.ay = 1;
+                if (MC.onSolidGround) {
+                    MC.dy++;
+                }
+                MC.onSolidGround = false;
+            } else if (input.equals(alphabet[11])) { //instant fame with the boys/girls/enbies (w/ chance of losing fame and not being able to regain it for a time) You have tried to game instant fame and failed miserably.
+                //
+            } else if (input.equals(alphabet[12])) { //temporary leg-down paralysis
+                //
+            } else if (input.equals(alphabet[13])) { //coated you in butter - slide past closed doors, can’t climb ladders
+                //
+            } else if (input.equals(alphabet[14])) { //tempt people to push you off a ledge
+                //
+            } else if (input.equals(alphabet[15])) { //people form human bodyguard
+                //
+            } else if (input.equals(alphabet[16])) { //pop out a cobblestone
+                //
+            } else if (input.equals(alphabet[17])) { //give out poison
+                //
+            } else if (input.equals(alphabet[18])) { //ghost mode - walk through horizontal barriers
+                //
+            } else if (input.equals(alphabet[19])) { //pull fire alarm in random building, cause panic
+                //
+            } else if (input.equals(alphabet[20])) { //throw boomerang
+                //
+            } else if (input.equals(alphabet[21])) { //random character death
+                //
+            } else if (input.equals(alphabet[22])) { //start crying uncontrollably (stops when find random shoulder to cry on)
+                //
+            } else if (input.equals(alphabet[23])) { //next arrow is instant kill arrow
+                //
+            } else if (input.equals(alphabet[24])) { //turn into a butterfly
+                //
+            } else if (input.equals(alphabet[25])) { //turn into a sponge
+                //
             }
         }
     }
@@ -448,6 +558,10 @@ public class Profiscendum extends JFrame implements KeyListener {
             case "LEFT":
                 MC.dx = 0;
                 break;
+            default:
+            if (input.equals(alphabet[10])) {
+                MC.ay = -2; //reset gravity
+            }
         }
     }
 
