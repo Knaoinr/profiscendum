@@ -66,8 +66,8 @@ public class Tower extends JLayeredPane {
         add(ladder, Integer.valueOf(10));
 
         //flags
-        Flag leftFlag = new Flag(Pattern.PLAIN);
-        Flag rightFlag = new Flag(Pattern.PLAIN);
+        Flag leftFlag = new Flag(Pattern.PATTERNED);
+        Flag rightFlag = new Flag(Pattern.PATTERNED);
         leftFlag.setBounds(6, -20, 4, 21);
         rightFlag.setBounds(51, -20, 4, 21);
         add(leftFlag, Integer.valueOf(0));

@@ -445,18 +445,39 @@ public class Profiscendum extends JFrame implements KeyListener {
                     MC.dy = 16;
                     MC.onSolidGround = false;
                 }
+                if (MC.imageChoice.value.equals("LADDER")) {
+                    MC.dy = 2;
+                }
+                MC.verticalDirection = Direction.UP;
                 break;
             case "↓":
             case "DOWN":
+                if (MC.imageChoice.value.equals("LADDER")) {
+                    MC.dy = -2;
+                }
+                else if (!MC.onSolidGround) {
+                    MC.dy--;
+                }
+                else if (MC.dx > 2) { MC.dx = 2; }
+                else if (MC.dx < -2) { MC.dx = -2; }
+                MC.verticalDirection = Direction.DOWN;
                 break;
             case "→":
             case "RIGHT":
-                MC.dx = 5;
+                if (MC.verticalDirection == Direction.DOWN) {
+                    MC.dx = 2;
+                } else {
+                    MC.dx = 5;
+                }
                 MC.horizontalDirection = Direction.RIGHT;
                 break;
             case "←":
             case "LEFT":
-                MC.dx = -5;
+                if (MC.verticalDirection == Direction.DOWN) {
+                    MC.dx = -2;
+                } else {
+                    MC.dx = -5;
+                }
                 MC.horizontalDirection = Direction.LEFT;
                 break;
             default:
@@ -545,17 +566,27 @@ public class Profiscendum extends JFrame implements KeyListener {
         switch (input) {
             case "↑":
             case "UP":
+                MC.verticalDirection = Direction.NONE;
+                if (MC.imageChoice.value.equals("LADDER")) {
+                    MC.dy = 0;
+                }
                 break;
             case "↓":
             case "DOWN":
+                MC.verticalDirection = Direction.NONE;
+                if (MC.imageChoice.value.equals("LADDER")) {
+                    MC.dy = 0;
+                }
                 break;
             case "→":
             case "RIGHT":
                 MC.dx = 0;
+                MC.horizontalDirection = Direction.NONE;
                 break;
             case "←":
             case "LEFT":
                 MC.dx = 0;
+                MC.horizontalDirection = Direction.NONE;
                 break;
             default:
             if (input.equals(alphabet[10])) {
