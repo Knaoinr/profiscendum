@@ -10,21 +10,19 @@ import profiscendum.components.Flag.Pattern;
 public class Tower extends JLayeredPane {
     private static final long serialVersionUID = 1L;
 
-    public Door leftDoor, rightDoor;
-
     public Tower() {
         //background
         JComponent tower = new JComponent() {
             private static final long serialVersionUID = 1L;
 
-            // paint tower
+            //paint tower
             public void paintComponent(Graphics g) {
-                g.setColor(new Color(84, 81, 80, 150));
+                g.setColor(new Color(84, 81, 80, 150)); //door thresholds
                 g.fillRect(0, 177, 15, 48);
                 g.fillRect(45, 177, 15, 48);
-                g.setColor(new Color(84, 81, 80, 125));
+                g.setColor(new Color(84, 81, 80, 125)); //other floors
                 g.fillRect(15, 25, 30, 140);
-                g.setColor(new Color(84, 81, 80, 100));
+                g.setColor(new Color(84, 81, 80, 100)); //1st floor
                 g.fillRect(15, 175, 30, 50);
             }
         };
@@ -33,26 +31,14 @@ public class Tower extends JLayeredPane {
         add(tower, Integer.valueOf(1));
 
         //fill rest of solid blocks
-        Block[] blocks = Block.fillRect(0, 0, 15, 177);
-        for(int i = 0; i < blocks.length; i++) {
-            add(blocks[i], Integer.valueOf(2));
-        }
-        blocks = Block.fillRect(45, 0, 15, 177);
-        for(int i = 0; i < blocks.length; i++) {
-            add(blocks[i], Integer.valueOf(2));
-        }
-        blocks = Block.fillRect(15, 10, 30, 15);
-        for(int i = 0; i < blocks.length; i++) {
-            add(blocks[i], Integer.valueOf(2));
-        }
-        blocks = Block.fillRect(15, 165, 30, 10);
-        for(int i = 0; i < blocks.length; i++) {
-            add(blocks[i], Integer.valueOf(2));
-        }
+        fillRectWithBlocks(0, 0, 15, 177);
+        fillRectWithBlocks(45, 0, 15, 177);
+        fillRectWithBlocks(15, 10, 30, 15);
+        fillRectWithBlocks(15, 165, 30, 10);
 
         //doors
-        leftDoor = new Door(10);
-        rightDoor = new Door(10);
+        Door leftDoor = new Door(10);
+        Door rightDoor = new Door(10);
         leftDoor.setLocation(2, 177);
         rightDoor.setLocation(47, 177);
         leftDoor.setSize(leftDoor.maxStrength, 48);
@@ -62,7 +48,7 @@ public class Tower extends JLayeredPane {
 
         //ladder
         Ladder ladder = new Ladder();
-        ladder.setBounds(35, 10, 10, 140);
+        ladder.setBounds(34, 10, 10, 140);
         add(ladder, Integer.valueOf(10));
 
         //flags
@@ -78,5 +64,12 @@ public class Tower extends JLayeredPane {
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(60, 225);
+    }
+
+    private void fillRectWithBlocks(int x, int y, int width, int height) {
+        Block[] blocks = Block.fillRect(x, y, width, height);
+        for(int i = 0; i < blocks.length; i++) {
+            add(blocks[i], Integer.valueOf(2));
+        }
     }
 }

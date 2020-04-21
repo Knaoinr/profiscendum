@@ -9,6 +9,7 @@ public class Block extends JComponent {
     private static final long serialVersionUID = 1L;
 
     public void paintComponent(Graphics g) {
+        g.setClip(0, 0, getWidth(), getHeight());
         g.setColor(new Color(84, 81, 80));
         g.fillRect(0, 0, getWidth(), getHeight());
     }

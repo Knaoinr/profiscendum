@@ -52,7 +52,7 @@ public class MainCharacter extends Character {
         selfRect.x = x; //corrections for incorrect getLocation()
         selfRect.y = y;
         for(int i = 0; i < mainPanel.getComponentCount(); i++) {
-            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && mainPanel.getComponent(i).getClass() == Tower.class) {
+            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i).getClass() == Tower.class || mainPanel.getComponent(i).getClass() == Building.class)) {
                 Container comp = (Container) mainPanel.getComponent(i);
                 for(int j = 0; j < comp.getComponentCount(); j++) {
                     //if intersects
@@ -72,8 +72,10 @@ public class MainCharacter extends Character {
         if (verticalDirection == Direction.DOWN) {
             if (horizontalDirection == Direction.RIGHT || (horizontalDirection == Direction.NONE && lastDirection == ImageChoice.RIGHT)) {
                 imageChoice = ImageChoice.CROUCHRIGHT;
+                lastDirection = ImageChoice.RIGHT;
             } else {
                 imageChoice = ImageChoice.CROUCHLEFT;
+                lastDirection = ImageChoice.LEFT;
             }
             return;
         }

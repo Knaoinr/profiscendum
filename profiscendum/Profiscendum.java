@@ -47,7 +47,9 @@ public class Profiscendum extends JFrame implements KeyListener {
     // Characters
     private MainCharacter MC;
 
+    //Structures
     private Tower leftTower, rightTower;
+    private Building leftBuilding, centerBuilding, rightBuilding;
 
     // MARK: - Constructor
 
@@ -115,6 +117,148 @@ public class Profiscendum extends JFrame implements KeyListener {
         rightTower.setSize(rightTower.getPreferredSize());
         mainPanel.add(leftTower, Integer.valueOf(10));
         mainPanel.add(rightTower, Integer.valueOf(10));
+
+        //buildings
+        leftBuilding = new Building(145, 250, 5);
+        leftBuilding.setBounds(145, 130, 145, 250);
+            Ladder ladder = new Ladder();
+            ladder.setBounds(28, 0, 12, 2*leftBuilding.floorHeight + 3);
+            leftBuilding.add(ladder, Integer.valueOf(10));
+            ladder = new Ladder();
+            ladder.setBounds(leftBuilding.getWidth() - 28, leftBuilding.floorHeight + 3, 12, 2*leftBuilding.floorHeight);
+            leftBuilding.add(ladder, Integer.valueOf(10));
+            ladder = new Ladder();
+            ladder.setBounds(39, 3*leftBuilding.floorHeight + 3, 12, leftBuilding.floorHeight);
+            leftBuilding.add(ladder, Integer.valueOf(10));
+            ladder = new Ladder();
+            ladder.setBounds(90, 4*leftBuilding.floorHeight + 3, 12, leftBuilding.floorHeight);
+            leftBuilding.add(ladder, Integer.valueOf(10));
+            Door door = new Door(3);
+            door.setBounds(75, 15, door.maxStrength, leftBuilding.floorHeight - 12);
+            leftBuilding.add(door, Integer.valueOf(10));
+            door = new Door(3);
+            door.setBounds(65, 15 + 3*leftBuilding.floorHeight, door.maxStrength, leftBuilding.floorHeight - 12);
+            leftBuilding.add(door, Integer.valueOf(10));
+            leftBuilding.fillRectWithBlocks(65, leftBuilding.floorHeight + 15, 10, leftBuilding.floorHeight - 12);
+
+        centerBuilding = new Building(145, 160, 3);
+        centerBuilding.setBounds(350, 220, 145, 160);
+            ladder = new Ladder();
+            ladder.setBounds(108, 0, 12, 2*centerBuilding.floorHeight + 3);
+            centerBuilding.add(ladder, Integer.valueOf(10));
+            ladder = new Ladder();
+            ladder.setBounds(40, 2*centerBuilding.floorHeight + 3, 12, centerBuilding.floorHeight);
+            centerBuilding.add(ladder, Integer.valueOf(10));
+            door = new Door(8);
+            door.setBounds(62, 15, door.maxStrength, centerBuilding.floorHeight - 12);
+            centerBuilding.add(door, Integer.valueOf(10));
+            door = new Door(8);
+            door.setBounds(62, 15 + centerBuilding.floorHeight, door.maxStrength, centerBuilding.floorHeight - 12);
+            centerBuilding.add(door, Integer.valueOf(10));
+
+        rightBuilding = new Building(145, 350, 8);
+        rightBuilding.setBounds(550, 30, 145, 350);
+            ladder = new Ladder();
+            ladder.setBounds(rightBuilding.getWidth() - 28, 0, 12, rightBuilding.floorHeight + 3);
+            rightBuilding.add(ladder, Integer.valueOf(10));
+            ladder = new Ladder();
+            ladder.setBounds(17, rightBuilding.floorHeight + 3, 12, 2*rightBuilding.floorHeight);
+            rightBuilding.add(ladder, Integer.valueOf(10));
+            ladder = new Ladder();
+            ladder.setBounds(83, rightBuilding.floorHeight + 3, 12, rightBuilding.floorHeight);
+            rightBuilding.add(ladder, Integer.valueOf(10));
+            ladder = new Ladder();
+            ladder.setBounds(63, 3*rightBuilding.floorHeight + 3, 12, 2*rightBuilding.floorHeight);
+            rightBuilding.add(ladder, Integer.valueOf(10));
+            ladder = new Ladder();
+            ladder.setBounds(94, 3*rightBuilding.floorHeight + 3, 12, rightBuilding.floorHeight);
+            rightBuilding.add(ladder, Integer.valueOf(10));
+            ladder = new Ladder();
+            ladder.setBounds(20, 5*rightBuilding.floorHeight + 3, 12, 2*rightBuilding.floorHeight);
+            rightBuilding.add(ladder, Integer.valueOf(10));
+            ladder = new Ladder();
+            ladder.setBounds(109, 5*rightBuilding.floorHeight + 3, 12, rightBuilding.floorHeight);
+            rightBuilding.add(ladder, Integer.valueOf(10));
+            ladder = new Ladder();
+            ladder.setBounds(52, 7*rightBuilding.floorHeight + 3, 12, rightBuilding.floorHeight + 3);
+            rightBuilding.add(ladder, Integer.valueOf(10));
+            door = new Door(3);
+            door.setBounds(50, 15, door.maxStrength, rightBuilding.floorHeight - 12);
+            rightBuilding.add(door, Integer.valueOf(10));
+            door = new Door(3);
+            door.setBounds(100, 15, door.maxStrength, rightBuilding.floorHeight - 12);
+            rightBuilding.add(door, Integer.valueOf(10));
+            door = new Door(3);
+            door.setBounds(55, 2*rightBuilding.floorHeight + 15, door.maxStrength, rightBuilding.floorHeight - 12);
+            rightBuilding.add(door, Integer.valueOf(10));
+            door = new Door(3);
+            door.setBounds(45, 4*rightBuilding.floorHeight + 15, door.maxStrength, rightBuilding.floorHeight - 12);
+            rightBuilding.add(door, Integer.valueOf(10));
+            door = new Door(3);
+            door.setBounds(81, 6*rightBuilding.floorHeight + 15, door.maxStrength, rightBuilding.floorHeight - 12);
+            rightBuilding.add(door, Integer.valueOf(10));
+            door = new Door(3);
+            door.setBounds(94, 7*rightBuilding.floorHeight + 15, door.maxStrength, rightBuilding.floorHeight - 9);
+            rightBuilding.add(door, Integer.valueOf(10));
+            rightBuilding.fillRectWithBlocks(68, rightBuilding.floorHeight + 15, 10, rightBuilding.floorHeight - 12);
+            rightBuilding.fillRectWithBlocks(80, 3*rightBuilding.floorHeight + 15, 10, rightBuilding.floorHeight - 12);
+            rightBuilding.fillRectWithBlocks(56, 5*rightBuilding.floorHeight + 15, 10, rightBuilding.floorHeight - 12);
+            //make room for doors ->
+            rightBuilding.remove(rightBuilding.getComponentAt(4, 3*rightBuilding.floorHeight+15 + 5));
+            rightBuilding.remove(rightBuilding.getComponentAt(4, 3*rightBuilding.floorHeight+15 + 15));
+            rightBuilding.remove(rightBuilding.getComponentAt(4, 3*rightBuilding.floorHeight+15 + 25));
+            rightBuilding.remove(rightBuilding.getComponentAt(4, 3*rightBuilding.floorHeight+15 + 35));
+            rightBuilding.remove(rightBuilding.getComponentAt(8, 3*rightBuilding.floorHeight+15 + 5));
+            rightBuilding.remove(rightBuilding.getComponentAt(8, 3*rightBuilding.floorHeight+15 + 15));
+            rightBuilding.remove(rightBuilding.getComponentAt(8, 3*rightBuilding.floorHeight+15 + 25));
+            rightBuilding.remove(rightBuilding.getComponentAt(8, 3*rightBuilding.floorHeight+15 + 35));
+            rightBuilding.fillRectWithBlocks(0, 4*rightBuilding.floorHeight + 3, 15, 10);
+            Block platform = new Block();
+            platform.setBounds(-10, 4*rightBuilding.floorHeight + 3, 11, 10);
+            rightBuilding.add(platform, Integer.valueOf(9));
+            rightBuilding.remove(rightBuilding.getComponentAt(rightBuilding.getWidth() - 4, 2*rightBuilding.floorHeight+15 + 5));
+            rightBuilding.remove(rightBuilding.getComponentAt(rightBuilding.getWidth() - 4, 2*rightBuilding.floorHeight+15 + 15));
+            rightBuilding.remove(rightBuilding.getComponentAt(rightBuilding.getWidth() - 4, 2*rightBuilding.floorHeight+15 + 20));
+            rightBuilding.remove(rightBuilding.getComponentAt(rightBuilding.getWidth() - 4, 2*rightBuilding.floorHeight+15 + 30));
+            rightBuilding.remove(rightBuilding.getComponentAt(rightBuilding.getWidth() - 9, 2*rightBuilding.floorHeight+15 + 5));
+            rightBuilding.remove(rightBuilding.getComponentAt(rightBuilding.getWidth() - 9, 2*rightBuilding.floorHeight+15 + 15));
+            rightBuilding.remove(rightBuilding.getComponentAt(rightBuilding.getWidth() - 9, 2*rightBuilding.floorHeight+15 + 20));
+            rightBuilding.remove(rightBuilding.getComponentAt(rightBuilding.getWidth() - 9, 2*rightBuilding.floorHeight+15 + 30));
+            rightBuilding.fillRectWithBlocks(rightBuilding.getWidth() - 15, 3*rightBuilding.floorHeight + 3, 15, 4);
+            rightBuilding.fillRectWithBlocks(rightBuilding.getWidth() - 15, 2*rightBuilding.floorHeight + 11, 15, 4);
+            platform = new Block();
+            platform.setBounds(rightBuilding.getWidth() - 1, 3*rightBuilding.floorHeight + 3, 11, 10);
+            rightBuilding.add(platform, Integer.valueOf(9));
+            JComponent threshold = new JComponent() {
+				private static final long serialVersionUID = 1L;
+				@Override
+                protected void paintComponent(Graphics g) {
+                    g.setColor(new Color(84, 81, 80, 150)); //door thresholds
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                }
+            };
+            threshold.setBounds(0, 3*rightBuilding.floorHeight + 15, 15, rightBuilding.floorHeight - 12);
+            rightBuilding.add(threshold, Integer.valueOf(1));
+            threshold = new JComponent() {
+				private static final long serialVersionUID = 1L;
+				@Override
+                protected void paintComponent(Graphics g) {
+                    g.setColor(new Color(84, 81, 80, 150)); //door thresholds
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                }
+            };
+            threshold.setBounds(rightBuilding.getWidth() - 15, 2*rightBuilding.floorHeight + 15, 15, rightBuilding.floorHeight - 12);
+            rightBuilding.add(threshold, Integer.valueOf(1));
+            door = new Door(4);
+            door.setBounds(5, 3*rightBuilding.floorHeight + 15, door.maxStrength, rightBuilding.floorHeight - 12);
+            rightBuilding.add(door, Integer.valueOf(10));
+            door = new Door(4);
+            door.setBounds(rightBuilding.getWidth() - 9, 2*rightBuilding.floorHeight + 15, door.maxStrength, rightBuilding.floorHeight - 12);
+            rightBuilding.add(door, Integer.valueOf(10));
+
+        mainPanel.add(leftBuilding, Integer.valueOf(10));
+        mainPanel.add(centerBuilding, Integer.valueOf(10));
+        mainPanel.add(rightBuilding, Integer.valueOf(10));
 
         // labels
         randomLetterLabel = new JLabel();
@@ -311,6 +455,7 @@ public class Profiscendum extends JFrame implements KeyListener {
                 + "\n" + "\n" + "\n" + "CONTROLS\n" + "\n" + "← → : Move in the left or right direction.\n"
                 + "↑ : Jump or climb a ladder.\n" + "↓ : Crouch or descend a ladder.\n"
                 + "SPACE: Shoot your bow and arrow in whatever direction you're facing.\n"
+                + "SHIFT: Open or close a door. (Must be standing at the door itself to use)\n"
                 + "ENTER: Call your escape dragon, which will arrive one minute after you call them and depart 30 seconds after that.\n"
                 + "\n"
                 + "As for the rest of your abilities, each one can be called by a different key on your keyboard (A-Z). "
@@ -375,7 +520,7 @@ public class Profiscendum extends JFrame implements KeyListener {
         howToPlayScroll.setBackground(new Color(56, 49, 44));
         howToPlayScroll.getVerticalScrollBar().setUnitIncrement(3);
         howToPlayScroll.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
-            @Override 
+            @Override
             protected void configureScrollBarColors() {
                 this.thumbColor = new Color(125, 122, 120);
                 this.thumbHighlightColor = new Color(0, 0, 0, 0);
@@ -383,7 +528,6 @@ public class Profiscendum extends JFrame implements KeyListener {
                 this.thumbLightShadowColor = thumbColor;
                 this.trackColor = new Color(56, 49, 44);
             }
-
             @Override
             protected JButton createDecreaseButton(int orientation) {
                 JButton button = new JButton();
@@ -439,6 +583,33 @@ public class Profiscendum extends JFrame implements KeyListener {
             case "␣":
             case "SPACE":
                 break;
+            case "⇧":
+            case "SHIFT":
+                Rectangle selfRect = Profiscendum.getRectangleRelativeTo(MC, mainPanel);
+                selfRect.x = MC.x; //corrections for incorrect getLocation()
+                selfRect.y = MC.y;
+                for(int i = 0; i < mainPanel.getComponentCount(); i++) {
+                    if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i).getClass() == Tower.class || mainPanel.getComponent(i).getClass() == Building.class)) {
+                        Container comp = (Container) mainPanel.getComponent(i);
+                        for(int j = 0; j < comp.getComponentCount(); j++) {
+                            //if intersects
+                            Rectangle otherRect = Profiscendum.getRectangleRelativeTo((Container) comp.getComponent(j), mainPanel);
+                            if (selfRect.intersects(otherRect)) {
+                                //if door
+                                if (comp.getComponent(j).getClass() == Door.class) {
+                                    //toggle
+                                    Door door = (Door) comp.getComponent(j);
+                                    door.setDoor(!door.isOpen());
+                                    Rectangle bounds = getRectangleRelativeTo(door, mainPanel);
+                                    bounds.width = Math.max(door.maxStrength, 15);
+                                    mainPanel.repaint(bounds);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
             case "↑":
             case "UP":
                 if (MC.onSolidGround) {
@@ -493,7 +664,7 @@ public class Profiscendum extends JFrame implements KeyListener {
                             door = (Door) ((Container) mainPanel.getComponent(i)).getComponent(j);
                             if (rand.nextDouble() < 1d/door.getStrength()) {
                                 //toggle
-                                door.setDoor(!leftTower.rightDoor.isOpen());
+                                door.setDoor(!door.isOpen());
                                 Rectangle bounds = getRectangleRelativeTo(door, mainPanel);
                                 bounds.width = Math.max(door.maxStrength, 15);
                                 mainPanel.repaint(bounds);

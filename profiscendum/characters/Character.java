@@ -5,6 +5,7 @@ import javax.swing.JLayeredPane;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Rectangle;
 import profiscendum.Profiscendum;
@@ -76,7 +77,7 @@ public class Character extends JComponent {
         }
         //ladders
         for(int i = 0; i < mainPanel.getComponentCount(); i++) {
-            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && mainPanel.getComponent(i).getClass() == Tower.class) {
+            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i).getClass() == Tower.class || mainPanel.getComponent(i).getClass() == Building.class)) {
                 Container comp = (Container) mainPanel.getComponent(i);
                 for(int j = 0; j < comp.getComponentCount(); j++) {
                     //if intersects
@@ -100,7 +101,7 @@ public class Character extends JComponent {
         }
         //buildings
         for(int i = 0; i < mainPanel.getComponentCount() && (!isHorizontalBarrier || !isVerticalBarrier); i++) {
-            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && mainPanel.getComponent(i).getClass() == Tower.class) {
+            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i).getClass() == Tower.class || mainPanel.getComponent(i).getClass() == Building.class)) {
                 Container comp = (Container) mainPanel.getComponent(i);
                 for(int j = 0; j < comp.getComponentCount() && (!isHorizontalBarrier || !isVerticalBarrier); j++) {
                     //if intersects
@@ -108,52 +109,56 @@ public class Character extends JComponent {
                     if (selfRect.intersects(otherRect)) {
                         //if block
                         if (comp.getComponent(j).getClass() == Block.class) {
-                            //if on top && no other component on top
-                            if (y < otherRect.y + otherRect.height && dy <= 0 && !ignoreVerticalBarriers) {
-                                if (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width/2, comp.getComponent(j).getY() - 4) == null) {
-                                    isVerticalBarrier = true;
-                                    onSolidGround = true;
-                                    y = otherRect.y - height + 1;
-                                    selfRect.y = y;
+                            if (selfRect.intersection(otherRect).width > 2) {
+                                //if on top && no other component on top
+                                if (y < otherRect.y + otherRect.height && dy <= 0 && !ignoreVerticalBarriers) {
+                                    if (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width/2, comp.getComponent(j).getY() - 4) == null) {
+                                        isVerticalBarrier = true;
+                                        onSolidGround = true;
+                                        y = otherRect.y - height + 1;
+                                        selfRect.y = y;
+                                    }
+                                    else if (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width/2, comp.getComponent(j).getY() - 4).getClass() != Block.class) {
+                                        isVerticalBarrier = true;
+                                        onSolidGround = true;
+                                        y = otherRect.y - height + 1;
+                                        selfRect.y = y;
+                                    }
                                 }
-                                else if (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width/2, comp.getComponent(j).getY() - 4).getClass() != Block.class) {
-                                    isVerticalBarrier = true;
-                                    onSolidGround = true;
-                                    y = otherRect.y - height + 1;
-                                    selfRect.y = y;
-                                }
-                            }
-                            //if on bottom && no other component on bottom
-                            else if (y + selfRect.height/2 > otherRect.y && dy > 0 && !ignoreVerticalBarriers) {
-                                if (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width/2, comp.getComponent(j).getY() + otherRect.height + 4) == null) {
-                                    isVerticalBarrier = true;
-                                    y = otherRect.y + otherRect.height + 1;
-                                    selfRect.y = y;
-                                }
-                                else if (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width/2, comp.getComponent(j).getY() + otherRect.height + 4).getClass() != Block.class) {
-                                    isVerticalBarrier = true;
-                                    y = otherRect.y + otherRect.height + 1;
-                                    selfRect.y = y;
+                                //if on bottom && no other component on bottom
+                                else if (y + selfRect.height/2 > otherRect.y && dy > 0 && !ignoreVerticalBarriers) {
+                                    if (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width/2, comp.getComponent(j).getY() + otherRect.height + 4) == null) {
+                                        isVerticalBarrier = true;
+                                        y = otherRect.y + otherRect.height + 1;
+                                        selfRect.y = y;
+                                    }
+                                    else if (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width/2, comp.getComponent(j).getY() + otherRect.height + 4).getClass() != Block.class) {
+                                        isVerticalBarrier = true;
+                                        y = otherRect.y + otherRect.height + 1;
+                                        selfRect.y = y;
+                                    }
                                 }
                             }
                             //if trying to enter horizontally
-                            if ((otherRect.x + comp.getComponent(j).getWidth()/2 > x + width/2) == (dx > 0)) {
+                            if ((otherRect.x + comp.getComponent(j).getWidth()/2 > x + width/2) == (dx > 0) && selfRect.intersection(otherRect).height > 2) {
                                 //no other component on that side
                                 if (dx > 0) { //right
-                                    if (comp.getComponentAt(comp.getComponent(j).getX() - 4, comp.getComponent(j).getY() + otherRect.height/2) == null) {
+                                    Component border = comp.getComponentAt(comp.getComponent(j).getX() - 1, comp.getComponent(j).getY() + otherRect.height/2);
+                                    if (border == null) {
                                         isHorizontalBarrier = true;
                                         x = otherRect.x - width + 1;
                                     }
-                                    else if (comp.getComponentAt(comp.getComponent(j).getX() - 4, comp.getComponent(j).getY() + otherRect.height/2).getClass() != Block.class) {
+                                    else if (border.getClass() != Block.class && border.getClass() != Ladder.class) {
                                         isHorizontalBarrier = true;
                                         x = otherRect.x - width + 1;
                                     }
                                 } else if (dx < 0) { //left
-                                    if (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width + 4, comp.getComponent(j).getY() + otherRect.height/2) == null) {
+                                    Component border = comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width + 1, comp.getComponent(j).getY() + otherRect.height/2);
+                                    if (border == null) {
                                         isHorizontalBarrier = true;
                                         x = otherRect.x + otherRect.width - 1;
                                     }
-                                    else if (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width + 4, comp.getComponent(j).getY() + otherRect.height/2).getClass() != Block.class) {
+                                    else if (border.getClass() != Block.class && border.getClass() != Ladder.class) {
                                         isHorizontalBarrier = true;
                                         x = otherRect.x + otherRect.width - 1;
                                     }
@@ -203,6 +208,7 @@ public class Character extends JComponent {
             y -= dy;
         }
         else if (!isVerticalBarrier) {
+            onSolidGround = false;
             dy += ay;
             y -= dy;
         } else {
