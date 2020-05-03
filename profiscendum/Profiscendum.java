@@ -15,7 +15,7 @@ import profiscendum.characters.Character.Direction;
 
 public class Profiscendum extends JFrame implements KeyListener {
 
-    private static final long serialVersionUID = 1L; // version 1
+    private static final long serialVersionUID = 1L; //version 1
 
     // MARK: - Objects
 
@@ -27,6 +27,8 @@ public class Profiscendum extends JFrame implements KeyListener {
     private JLayeredPane mainPanel;
     private JLayeredPane characterPanel;
 
+    public static Scheduler scheduler;
+
     // Labels & buttons
     private JPanel startPanel;
     private JLabel startLabel;
@@ -37,6 +39,11 @@ public class Profiscendum extends JFrame implements KeyListener {
     private JScrollPane howToPlayScroll;
     private JTextArea howToPlayArea;
     private JLabel randomLetterLabel;
+    private JComponent pauseButton;
+    private JLabel restartLabel;
+    private JLabel creditLabel;
+    private JLabel gameOverLabel;
+    private JLabel causeOfDeathLabel;
 
     // Game loop variables
     private boolean running = false;
@@ -47,7 +54,7 @@ public class Profiscendum extends JFrame implements KeyListener {
     // Characters
     private MainCharacter MC;
 
-    //Structures
+    // Structures
     private Tower leftTower, rightTower;
     private Building leftBuilding, centerBuilding, rightBuilding;
 
@@ -68,6 +75,7 @@ public class Profiscendum extends JFrame implements KeyListener {
         cp.add("Center", mainPanel);
 
         rand = ThreadLocalRandom.current();
+        scheduler = new Scheduler();
 
         // Retrieve high score
         try {
@@ -88,11 +96,11 @@ public class Profiscendum extends JFrame implements KeyListener {
     // MARK: - Adding elements
 
     private void setupComponents() {
-        // background
+        //background
         JComponent background = new JComponent() {
             private static final long serialVersionUID = 1L;
 
-            // paint background color
+            //paint background color
             public void paintComponent(Graphics g) {
                 g.setColor(new Color(192, 163, 148));
                 g.fillRect(0, 0, 840, 420);
@@ -108,7 +116,7 @@ public class Profiscendum extends JFrame implements KeyListener {
         characterPanel.setBounds(0, 0, 840, 420);
         mainPanel.add(characterPanel, Integer.valueOf(30));
 
-        // towers
+        //towers
         leftTower = new Tower();
         rightTower = new Tower();
         leftTower.setLocation(50, 155);
@@ -118,7 +126,7 @@ public class Profiscendum extends JFrame implements KeyListener {
         mainPanel.add(leftTower, Integer.valueOf(10));
         mainPanel.add(rightTower, Integer.valueOf(10));
 
-        //buildings
+        //buildings + adding doors, ladders, etc.
         leftBuilding = new Building(145, 250, 5);
         leftBuilding.setBounds(145, 130, 145, 250);
             Ladder ladder = new Ladder();
@@ -260,7 +268,7 @@ public class Profiscendum extends JFrame implements KeyListener {
         mainPanel.add(centerBuilding, Integer.valueOf(10));
         mainPanel.add(rightBuilding, Integer.valueOf(10));
 
-        // labels
+        //label at bottom center
         randomLetterLabel = new JLabel();
         randomLetterLabel.setHorizontalAlignment(SwingConstants.CENTER);
         randomLetterLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
@@ -268,11 +276,53 @@ public class Profiscendum extends JFrame implements KeyListener {
         randomLetterLabel.setBounds(0, 380, 840, 40);
         mainPanel.add(randomLetterLabel, JLayeredPane.PALETTE_LAYER, Integer.valueOf(0));
 
-        // start panel
+        GridBagConstraints c = new GridBagConstraints();
+
+        //pause button
+        pauseButton = new JComponent() {
+			private static final long serialVersionUID = 1L;
+            
+            @Override
+            protected void paintComponent(Graphics g) {
+                g.setColor(new Color(0f, 0f, 0f, 0.2f));
+                g.fillRect(0, 0, getWidth(), getHeight());
+                g.setColor(new Color(0f, 0f, 0f, 0.4f));
+                g.drawRect(0, 0, getWidth()-1, getHeight()-1);
+                g.fillRect(getWidth()/2 - 5, getHeight()/2 - 6, 4, 12);
+                g.fillRect(getWidth()/2 + 2, getHeight()/2 - 6, 4, 12);
+            }
+        };
+        pauseButton.addMouseListener(new MouseAdapter() {
+            //pause on click
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                //pause movement & timers
+                removeListeners();
+                paused = true;
+
+                startLabel.setText("RESUME GAME");
+                mainPanel.add(startPanel, JLayeredPane.MODAL_LAYER, Integer.valueOf(1));
+
+                c.gridx = 0;
+                c.gridy = 2;
+                c.ipadx = 0;
+                c.ipady = 10;
+                c.gridheight = 1;
+                c.gridwidth = 2;
+                startPanel.add(restartLabel, c);
+
+                mainPanel.validate();
+                mainPanel.repaint();
+            }
+        });
+        pauseButton.setBounds(840 - 25 - 5, 5, 25, 25);
+        mainPanel.add(pauseButton, JLayeredPane.PALETTE_LAYER, Integer.valueOf(0));
+
+        //start panel
         startPanel = new JPanel(new GridBagLayout()) {
             private static final long serialVersionUID = 1L;
 
-            // grey background
+            //grey background
             public void paintComponent(Graphics g) {
                 g.setColor(new Color(0f, 0f, 0f, 0.7f));
                 g.fillRect(0, 0, 840, 420);
@@ -281,40 +331,41 @@ public class Profiscendum extends JFrame implements KeyListener {
         startPanel.setOpaque(false);
         startPanel.setBounds(0, 0, 840, 420);
 
-        GridBagConstraints c = new GridBagConstraints();
-
         startLabel = new JLabel("START GAME");
         startLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
         startLabel.setForeground(new Color(1f, 1f, 1f, 0.6f));
         c.gridwidth = 2;
         c.ipady = 10;
         startLabel.addMouseListener(new MouseAdapter() {
-            // bold on hover
+            //bold on hover
             @Override
             public void mouseEntered(MouseEvent e) {
                 startLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, 40));
             }
 
-            // unbold on exit
+            //unbold on exit
             @Override
             public void mouseExited(MouseEvent e) {
                 startLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
             }
 
-            // start on click
+            //start on click
             @Override
             public void mouseClicked(MouseEvent e) {
-                // if game not started (vs RESUME GAME)
+                startLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
+                //if game not started (vs RESUME GAME)
                 if (startLabel.getText().equals("START GAME")) {
                     setupCharacters();
+                    shuffleArray(alphabet);
                 }
-                // start/resume movement & timers
+                //start/resume movement & timers
                 addListeners();
                 running = true;
                 paused = false;
                 runGameLoop();
 
                 mainPanel.remove(startPanel);
+                mainPanel.remove(creditLabel);
                 mainPanel.validate();
                 mainPanel.repaint();
             }
@@ -334,19 +385,19 @@ public class Profiscendum extends JFrame implements KeyListener {
         howToPlayLabel.setForeground(new Color(1f, 1f, 1f, 0.6f));
         c.gridx = 1;
         howToPlayLabel.addMouseListener(new MouseAdapter() {
-            // bold on hover
+            //bold on hover
             @Override
             public void mouseEntered(MouseEvent e) {
                 howToPlayLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, 20));
             }
 
-            // unbold on exit
+            //unbold on exit
             @Override
             public void mouseExited(MouseEvent e) {
                 howToPlayLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
             }
 
-            // change labels on click
+            //change labels on click
             @Override
             public void mouseClicked(MouseEvent e) {
                 startPanel.removeAll();
@@ -355,6 +406,8 @@ public class Profiscendum extends JFrame implements KeyListener {
                 c.gridy = 0;
                 c.ipadx = 0;
                 c.ipady = 0;
+                c.gridheight = 1;
+                c.gridwidth = 1;
                 startPanel.add(backLabel, c);
 
                 JComponent blankTop = new JComponent() {
@@ -396,23 +449,83 @@ public class Profiscendum extends JFrame implements KeyListener {
         });
         startPanel.add(howToPlayLabel, c);
 
+        restartLabel = new JLabel("RESTART");
+        restartLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
+        restartLabel.setForeground(new Color(1f, 1f, 1f, 0.6f));
+        restartLabel.addMouseListener(new MouseAdapter() {
+            //bold on hover
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                restartLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, 20));
+            }
+
+            //unbold on exit
+            @Override
+            public void mouseExited(MouseEvent e) {
+                restartLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
+            }
+
+            //restart on click
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                running = false;
+
+                customDisassemble(mainPanel);
+                setupComponents();
+
+                //if game finished, extra components to replace
+                if (startPanel.isAncestorOf(gameOverLabel)) {
+                    startPanel.remove(gameOverLabel);
+                    startPanel.remove(causeOfDeathLabel);
+
+                    c.gridx = 0;
+                    c.gridy = 0;
+                    c.ipady = 10;
+                    c.gridheight = 1;
+                    c.gridwidth = 2;
+                    startPanel.add(startLabel, c);
+                    c.ipadx = 20;
+                    c.gridy = 1;
+                    c.gridwidth = 1;
+                    startPanel.add(highScoreLabel, c);
+                    c.gridx = 1;
+                    startPanel.add(howToPlayLabel, c);
+                }
+
+                startLabel.setText("START GAME");
+                startPanel.remove(restartLabel);
+                mainPanel.add(creditLabel, JLayeredPane.MODAL_LAYER, Integer.valueOf(0));
+
+                startPanel.validate();
+                startPanel.repaint();
+            }
+        });
+
+        gameOverLabel = new JLabel("GAME OVER");
+        gameOverLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
+        gameOverLabel.setForeground(new Color(1f, 1f, 1f, 0.6f));
+
+        causeOfDeathLabel = new JLabel();
+        causeOfDeathLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 20));
+        causeOfDeathLabel.setForeground(new Color(1f, 1f, 1f, 0.6f));
+
         backLabel = new JLabel("←");
         backLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
         backLabel.setForeground(new Color(1f, 1f, 1f, 0.6f));
         backLabel.addMouseListener(new MouseAdapter() {
-            // bold on hover
+            //bold on hover
             @Override
             public void mouseEntered(MouseEvent e) {
                 backLabel.setFont(new Font(Font.MONOSPACED, Font.BOLD, 40));
             }
 
-            // unbold on exit
+            //unbold on exit
             @Override
             public void mouseExited(MouseEvent e) {
                 backLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 40));
             }
 
-            // change labels on click
+            //change labels on click
             @Override
             public void mouseClicked(MouseEvent e) {
                 startPanel.removeAll();
@@ -438,7 +551,7 @@ public class Profiscendum extends JFrame implements KeyListener {
         howToPlayArea = new JTextArea();
         howToPlayArea.setLineWrap(true);
         howToPlayArea.setWrapStyleWord(true);
-        howToPlayArea.setSize(1, 1); // will expand to size
+        howToPlayArea.setSize(1, 1); //will expand to size
         howToPlayArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
         howToPlayArea.setForeground(new Color(1f, 1f, 1f, 0.8f));
         howToPlayArea.setBackground(new Color(56, 49, 44));
@@ -505,7 +618,8 @@ public class Profiscendum extends JFrame implements KeyListener {
                 + "\n"
                 + "Throw boomerang:\n"
                 + "\n"
-                + "Random character death:\n"
+                + "Random character death: Instantly kills a random character. "
+                + "This can be anyone, from the attacking soldiers to the civilians to you.\n"
                 + "\n"
                 + "Cry uncontrollably:\n"
                 + "\n"
@@ -548,7 +662,14 @@ public class Profiscendum extends JFrame implements KeyListener {
             }
         });
 
-        mainPanel.add(startPanel, JLayeredPane.MODAL_LAYER, Integer.valueOf(0));
+        mainPanel.add(startPanel, JLayeredPane.MODAL_LAYER, Integer.valueOf(1));
+
+        creditLabel = new JLabel("inspired by u/ashu54, created by Knaoinr");
+        creditLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        creditLabel.setForeground(new Color(1f, 1f, 1f, 0.4f));
+        creditLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        creditLabel.setBounds(10, 400, 820, 15);
+        mainPanel.add(creditLabel, JLayeredPane.MODAL_LAYER, Integer.valueOf(0));
     }
 
     private void setupCharacters() {
@@ -558,10 +679,38 @@ public class Profiscendum extends JFrame implements KeyListener {
         characterPanel.add(MC, Integer.valueOf(0));
     }
 
+    private void endGameInDeath(String causeOfDeath) {
+        //stop movement & timers
+        removeListeners();
+        paused = true;
+        running = false;
+
+        startPanel.remove(startLabel);
+        startPanel.remove(highScoreLabel);
+        startPanel.remove(howToPlayLabel);
+        mainPanel.add(startPanel, JLayeredPane.MODAL_LAYER, Integer.valueOf(1));
+
+        causeOfDeathLabel.setText("CAUSE OF DEATH: " + causeOfDeath);
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.ipady = 10;
+        startPanel.add(gameOverLabel, c);
+        c.gridy = 1;
+        startPanel.add(causeOfDeathLabel, c);
+        c.gridy = 2;
+        startPanel.add(restartLabel, c);
+
+        mainPanel.validate();
+        mainPanel.repaint();
+    }
+
     private void addListeners() {
         // Input setup
         addKeyListener(this);
-        shuffleArray(alphabet);
+    }
+
+    private void removeListeners() {
+        removeKeyListener(this);
     }
 
     // The entry main() method
@@ -574,7 +723,25 @@ public class Profiscendum extends JFrame implements KeyListener {
         });
     }
 
-    //MARK: - Implemented methods
+    // MARK: - Implemented methods
+
+    //extra special garbage disposal from https://www.algosome.com/articles/java-deploy-mac-native.html
+    @Override
+    public void dispose() {
+        customDisassemble(getContentPane());
+        super.dispose();
+    }
+
+    private void customDisassemble(Container c) {
+        Component[] children = c.getComponents();
+        for (Component co : children){
+            if (co instanceof Container){
+                Container con = (Container) co;
+                customDisassemble(con);
+            }
+            c.remove(co);
+        }
+    }
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -589,20 +756,20 @@ public class Profiscendum extends JFrame implements KeyListener {
                 selfRect.x = MC.x; //corrections for incorrect getLocation()
                 selfRect.y = MC.y;
                 for(int i = 0; i < mainPanel.getComponentCount(); i++) {
-                    if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i).getClass() == Tower.class || mainPanel.getComponent(i).getClass() == Building.class)) {
+                    if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i) instanceof Tower || mainPanel.getComponent(i) instanceof Building)) {
                         Container comp = (Container) mainPanel.getComponent(i);
                         for(int j = 0; j < comp.getComponentCount(); j++) {
                             //if intersects
                             Rectangle otherRect = Profiscendum.getRectangleRelativeTo((Container) comp.getComponent(j), mainPanel);
                             if (selfRect.intersects(otherRect)) {
                                 //if door
-                                if (comp.getComponent(j).getClass() == Door.class) {
+                                if (comp.getComponent(j) instanceof Door) {
                                     //toggle
                                     Door door = (Door) comp.getComponent(j);
-                                    door.setDoor(!door.isOpen());
-                                    Rectangle bounds = getRectangleRelativeTo(door, mainPanel);
-                                    bounds.width = Math.max(door.maxStrength, 15);
-                                    mainPanel.repaint(bounds);
+                                    if (!door.waitingOnUpdate) {
+                                        scheduler.add(door, door.getStrength()/6d, door.isOpen() ? "close" : "open");
+                                        door.waitingOnUpdate = true;
+                                    }
                                     return;
                                 }
                             }
@@ -659,7 +826,7 @@ public class Profiscendum extends JFrame implements KeyListener {
                 Door door;
                 for(int i = 0; i < mainPanel.getComponentCount(); i++) {
                     for(int j = 0; j < ((Container) mainPanel.getComponent(i)).getComponentCount(); j++) {
-                        if (((Container) mainPanel.getComponent(i)).getComponent(j).getClass() == Door.class) {
+                        if (((Container) mainPanel.getComponent(i)).getComponent(j) instanceof Door) {
                             //randomly open or close based on strength
                             door = (Door) ((Container) mainPanel.getComponent(i)).getComponent(j);
                             if (rand.nextDouble() < 1d/door.getStrength()) {
@@ -718,7 +885,21 @@ public class Profiscendum extends JFrame implements KeyListener {
             } else if (input.equals(alphabet[20])) { //throw boomerang
                 //
             } else if (input.equals(alphabet[21])) { //random character death
-                //
+                randomLetterLabel.setText("Key " + input + " has caused a random character death.");
+                //make sure it's a character
+                //TODO: but not a moving inanimate object
+                Component comp = characterPanel.getComponent(rand.nextInt(characterPanel.getComponentCount()));
+                while (!(comp instanceof profiscendum.characters.Character)) {
+                    comp = characterPanel.getComponent(rand.nextInt(characterPanel.getComponentCount()));
+                }
+                profiscendum.characters.Character character = (profiscendum.characters.Character) comp;
+                character.health = 0;
+                characterPanel.remove(character);
+                //TODO: if it's an enemy, respawn some time later
+                //if it's you :o
+                if (character.equals(MC)) {
+                    endGameInDeath("RANDOM CHARACTER DEATH");
+                }
             } else if (input.equals(alphabet[22])) { //start crying uncontrollably (stops when find random shoulder to cry on)
                 //
             } else if (input.equals(alphabet[23])) { //next arrow is instant kill arrow
@@ -845,6 +1026,7 @@ public class Profiscendum extends JFrame implements KeyListener {
     /** Sets the differences in location/appearance/etc to later be rendered. */
     private void updateGame() {
         MC.move(mainPanel);
+        scheduler.update();
     }
 
     /** Renders each difference made. */
@@ -869,7 +1051,7 @@ public class Profiscendum extends JFrame implements KeyListener {
     private void shuffleArray(String[] array) {
         for (int i = array.length - 1; i > 0; i--) {
             int index = rand.nextInt(i + 1);
-            // Simple swap
+            //Simple swap
             String a = array[index];
             array[index] = array[i];
             array[i] = a;

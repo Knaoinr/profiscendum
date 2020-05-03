@@ -27,6 +27,7 @@ public class Character extends JComponent {
     public Direction horizontalDirection = Direction.RIGHT;
 
     public boolean onSolidGround = true;
+    public int health;
 
     public enum Direction {
         UP(1), DOWN(2), LEFT(3), RIGHT(4), NONE(0);
@@ -77,14 +78,21 @@ public class Character extends JComponent {
         }
         //ladders
         for(int i = 0; i < mainPanel.getComponentCount(); i++) {
-            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i).getClass() == Tower.class || mainPanel.getComponent(i).getClass() == Building.class)) {
+            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i) instanceof Tower || mainPanel.getComponent(i) instanceof Building)) {
                 Container comp = (Container) mainPanel.getComponent(i);
                 for(int j = 0; j < comp.getComponentCount(); j++) {
                     //if intersects
                     Rectangle otherRect = Profiscendum.getRectangleRelativeTo((Container) comp.getComponent(j), mainPanel);
                     if (selfRect.intersects(otherRect)) {
-                        //if ladder
-                        if (comp.getComponent(j).getClass() == Ladder.class && y + selfRect.height < otherRect.y + otherRect.height) {
+                        //if at top of ladder
+                        if (comp.getComponent(j) instanceof Ladder && verticalDirection != Direction.DOWN && y + selfRect.height - otherRect.y < 5) {
+                            onSolidGround = true;
+                            y = otherRect.y - height + 1;
+                            selfRect.y = y;
+                            break;
+                        }
+                        //if on ladder
+                        else if (comp.getComponent(j) instanceof Ladder && y + selfRect.height < otherRect.y + otherRect.height) {
                             ignoreVerticalBarriers = true;
                             if (verticalDirection == Direction.UP) {
                                 dy = 2;
@@ -101,14 +109,14 @@ public class Character extends JComponent {
         }
         //buildings
         for(int i = 0; i < mainPanel.getComponentCount() && (!isHorizontalBarrier || !isVerticalBarrier); i++) {
-            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i).getClass() == Tower.class || mainPanel.getComponent(i).getClass() == Building.class)) {
+            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i) instanceof Tower || mainPanel.getComponent(i) instanceof Building)) {
                 Container comp = (Container) mainPanel.getComponent(i);
                 for(int j = 0; j < comp.getComponentCount() && (!isHorizontalBarrier || !isVerticalBarrier); j++) {
                     //if intersects
                     Rectangle otherRect = Profiscendum.getRectangleRelativeTo((Container) comp.getComponent(j), mainPanel);
                     if (selfRect.intersects(otherRect)) {
                         //if block
-                        if (comp.getComponent(j).getClass() == Block.class) {
+                        if (comp.getComponent(j) instanceof Block) {
                             if (selfRect.intersection(otherRect).width > 2) {
                                 //if on top && no other component on top
                                 if (y < otherRect.y + otherRect.height && dy <= 0 && !ignoreVerticalBarriers) {
@@ -118,7 +126,7 @@ public class Character extends JComponent {
                                         y = otherRect.y - height + 1;
                                         selfRect.y = y;
                                     }
-                                    else if (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width/2, comp.getComponent(j).getY() - 4).getClass() != Block.class) {
+                                    else if (! (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width/2, comp.getComponent(j).getY() - 4) instanceof Block)) {
                                         isVerticalBarrier = true;
                                         onSolidGround = true;
                                         y = otherRect.y - height + 1;
@@ -132,7 +140,7 @@ public class Character extends JComponent {
                                         y = otherRect.y + otherRect.height + 1;
                                         selfRect.y = y;
                                     }
-                                    else if (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width/2, comp.getComponent(j).getY() + otherRect.height + 4).getClass() != Block.class) {
+                                    else if (! (comp.getComponentAt(comp.getComponent(j).getX() + otherRect.width/2, comp.getComponent(j).getY() + otherRect.height + 4) instanceof Block)) {
                                         isVerticalBarrier = true;
                                         y = otherRect.y + otherRect.height + 1;
                                         selfRect.y = y;
@@ -148,7 +156,7 @@ public class Character extends JComponent {
                                         isHorizontalBarrier = true;
                                         x = otherRect.x - width + 1;
                                     }
-                                    else if (border.getClass() != Block.class && border.getClass() != Ladder.class) {
+                                    else if (! (border instanceof Block || border instanceof Ladder)) {
                                         isHorizontalBarrier = true;
                                         x = otherRect.x - width + 1;
                                     }
@@ -158,7 +166,7 @@ public class Character extends JComponent {
                                         isHorizontalBarrier = true;
                                         x = otherRect.x + otherRect.width - 1;
                                     }
-                                    else if (border.getClass() != Block.class && border.getClass() != Ladder.class) {
+                                    else if (! (border instanceof Block || border instanceof Ladder)) {
                                         isHorizontalBarrier = true;
                                         x = otherRect.x + otherRect.width - 1;
                                     }
@@ -167,7 +175,7 @@ public class Character extends JComponent {
                             }
                         }
                         //if door
-                        else if (comp.getComponent(j).getClass() == Door.class) {
+                        else if (comp.getComponent(j) instanceof Door) {
                             //if closed
                             if (!((Door) comp.getComponent(j)).isOpen()) {
                                 //if you're beneath it

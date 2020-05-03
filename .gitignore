@@ -1,3 +1,7 @@
 #MacOS generated files#
 #######################
 .DS_Store
+
+#Launch files#
+##############
+.vscode/*

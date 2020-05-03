@@ -24,6 +24,8 @@ public class MainCharacter extends Character {
 
         lastX = x;
         lastY = y;
+
+        health = 20;
     }
 
     public enum ImageChoice {
@@ -52,14 +54,14 @@ public class MainCharacter extends Character {
         selfRect.x = x; //corrections for incorrect getLocation()
         selfRect.y = y;
         for(int i = 0; i < mainPanel.getComponentCount(); i++) {
-            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i).getClass() == Tower.class || mainPanel.getComponent(i).getClass() == Building.class)) {
+            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i) instanceof Tower || mainPanel.getComponent(i) instanceof Building)) {
                 Container comp = (Container) mainPanel.getComponent(i);
                 for(int j = 0; j < comp.getComponentCount(); j++) {
                     //if intersects
                     Rectangle otherRect = Profiscendum.getRectangleRelativeTo((Container) comp.getComponent(j), mainPanel);
                     if (selfRect.intersects(otherRect)) {
                         //if ladder
-                        if (comp.getComponent(j).getClass() == Ladder.class && y + selfRect.height < otherRect.y + otherRect.height && (y + selfRect.height) - otherRect.y > 10) {
+                        if (comp.getComponent(j) instanceof Ladder && y + selfRect.height < otherRect.y + otherRect.height && (y + selfRect.height) - otherRect.y > 4) {
                             imageChoice = ImageChoice.LADDER;
                             return;
                         }

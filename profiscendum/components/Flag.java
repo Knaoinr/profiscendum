@@ -25,24 +25,24 @@ public class Flag extends JComponent {
         g.fillRect(0, 0, getWidth(), getHeight());
         if (pattern == Pattern.PATTERNED) {
             g.setColor(Color.BLACK);
-            int[] blackX = { 0, 0, -10 }; // (0, 0), (0, 4), (-10, 4)
+            int[] blackX = { 0, 0, -10 }; //(0, 0), (0, 4), (-10, 4)
             int[] blackY = { 0, 4, 4 };
             g.fillPolygon(new Polygon(blackX, blackY, 3));
             g.setColor(Color.GRAY);
-            int[] greyX = { 0, -10, -20, 0 }; // (0, 4), (-10, 4), (-20, 8), (0, 8)
+            int[] greyX = { 0, -10, -20, 0 }; //(0, 4), (-10, 4), (-20, 8), (0, 8)
             int[] greyY = { 4, 4, 8, 8 };
             g.fillPolygon(new Polygon(greyX, greyY, 4));
             g.setColor(new Color(1f, 1f, 1f, 0.6f));
-            int[] whiteX = { -20, 0, 0, -10 }; // (-20, 8), (0, 8), (0, 12), (-10, 12)
+            int[] whiteX = { -20, 0, 0, -10 }; //(-20, 8), (0, 8), (0, 12), (-10, 12)
             int[] whiteY = { 8, 8, 12, 12 };
             g.fillPolygon(new Polygon(whiteX, whiteY, 4));
             g.setColor(new Color(130, 49, 128));
-            int[] purpleX = { 0, -10, 0 }; // (0, 12), (-10, 12), (0, 16)
+            int[] purpleX = { 0, -10, 0 }; //(0, 12), (-10, 12), (0, 16)
             int[] purpleY = { 12, 12, 16 };
             g.fillPolygon(new Polygon(purpleX, purpleY, 3));
         } else if (pattern == Pattern.PLAIN) {
             g.setColor(new Color(1f, 1f, 1f, 0.6f));
-            int[] whiteX = { 0, 0, -20 }; // (0, 0), (0, 16), (-20, 8)
+            int[] whiteX = { 0, 0, -20 }; //(0, 0), (0, 16), (-20, 8)
             int[] whiteY = { 0, 16, 8 };
             g.fillPolygon(new Polygon(whiteX, whiteY, 3));
         }

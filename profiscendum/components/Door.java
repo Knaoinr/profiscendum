@@ -14,6 +14,8 @@ public class Door extends JComponent {
     private int strength = 0;
     public final int maxStrength;
 
+    public boolean waitingOnUpdate = false;
+
     public Door(int maxStrength) {
         this.maxStrength = maxStrength;
         strength = maxStrength;
