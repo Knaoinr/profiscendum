@@ -109,8 +109,16 @@ public class Character extends JComponent {
         }
         //buildings
         for(int i = 0; i < mainPanel.getComponentCount() && (!isHorizontalBarrier || !isVerticalBarrier); i++) {
-            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i) instanceof Tower || mainPanel.getComponent(i) instanceof Building)) {
+            if (selfRect.intersects(mainPanel.getComponent(i).getBounds()) && (mainPanel.getComponent(i) instanceof Tower || mainPanel.getComponent(i) instanceof Building || mainPanel.getComponent(i) instanceof IndependentBlock)) {
                 Container comp = (Container) mainPanel.getComponent(i);
+                //(exception: you're mc and the block is your sponge block)
+                if (this instanceof MainCharacter && comp instanceof IndependentBlock) {
+                    if ((IndependentBlock) comp == ((MainCharacter) this).spongeBlock) {
+                        isHorizontalBarrier = true;
+                        isVerticalBarrier = true;
+                        break;
+                    }
+                }
                 for(int j = 0; j < comp.getComponentCount() && (!isHorizontalBarrier || !isVerticalBarrier); j++) {
                     //if intersects
                     Rectangle otherRect = Profiscendum.getRectangleRelativeTo((Container) comp.getComponent(j), mainPanel);

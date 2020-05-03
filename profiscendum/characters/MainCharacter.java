@@ -14,6 +14,10 @@ public class MainCharacter extends Character {
     public ImageChoice imageChoice = ImageChoice.RIGHT;
     private ImageChoice lastDirection = ImageChoice.RIGHT;
 
+    public boolean paralyzed = false;
+
+    public IndependentBlock spongeBlock;
+
     public MainCharacter() {
         Image image = getImage();
         width = image.getWidth(null);
@@ -26,10 +30,14 @@ public class MainCharacter extends Character {
         lastY = y;
 
         health = 20;
+
+        spongeBlock = new IndependentBlock();
+        spongeBlock.setSize(10, 15);
+        spongeBlock.setVisible(false);
     }
 
     public enum ImageChoice {
-        RIGHT("RIGHT"), LEFT("LEFT"), LADDER("LADDER"), CROUCHLEFT("CROUCH-LEFT"), CROUCHRIGHT("CROUCH-RIGHT");
+        RIGHT("RIGHT"), LEFT("LEFT"), LADDER("LADDER"), CROUCHLEFT("CROUCH-LEFT"), CROUCHRIGHT("CROUCH-RIGHT"), SPONGE("SPONGE"), BUTTERFLY("BUTTERFLY");
 
         public final String value;
         private ImageChoice(String value) {
@@ -48,6 +56,16 @@ public class MainCharacter extends Character {
         super.move(mainPanel);
 
         //choose image
+
+        //if already foreign creature, don't change back
+        if (imageChoice == ImageChoice.SPONGE || imageChoice == ImageChoice.BUTTERFLY) {
+            //if needing to add block for sponge
+            if (imageChoice == ImageChoice.SPONGE && onSolidGround && !mainPanel.isAncestorOf(spongeBlock)) {
+                spongeBlock.setLocation(x + 4, y + 15);
+                mainPanel.add(spongeBlock, Integer.valueOf(30));
+            }
+            return;
+        }
 
         //if ladder intersects
         Rectangle selfRect = Profiscendum.getRectangleRelativeTo(this, mainPanel);

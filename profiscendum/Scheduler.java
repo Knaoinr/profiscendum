@@ -3,6 +3,7 @@ package profiscendum;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComponent;
+import profiscendum.characters.MainCharacter;
 import profiscendum.components.*;
 
 /**
@@ -41,6 +42,8 @@ public class Scheduler {
                         ((Door) objects.get(i)).setDoor(false);
                         ((Door) objects.get(i)).waitingOnUpdate = false;
                         break;
+                    case "unparalyze":
+                        ((MainCharacter) objects.get(i)).paralyzed = false;
                 }
                 indexes[0]++;
                 indexes[indexes[0]] = i;

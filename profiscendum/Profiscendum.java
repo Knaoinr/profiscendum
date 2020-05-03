@@ -12,6 +12,7 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 import profiscendum.components.*;
 import profiscendum.characters.*;
 import profiscendum.characters.Character.Direction;
+import profiscendum.characters.MainCharacter.ImageChoice;
 
 public class Profiscendum extends JFrame implements KeyListener {
 
@@ -568,7 +569,8 @@ public class Profiscendum extends JFrame implements KeyListener {
                 + "\n" + "\n" + "\n" + "CONTROLS\n" + "\n" + "← → : Move in the left or right direction.\n"
                 + "↑ : Jump or climb a ladder.\n" + "↓ : Crouch or descend a ladder.\n"
                 + "SPACE: Shoot your bow and arrow in whatever direction you're facing.\n"
-                + "SHIFT: Open or close a door. (Must be standing at the door itself to use)\n"
+                + "SHIFT: Open or close a door. (Must be standing at the door itself to use. "
+                + "There will be a delay of 1/6th its strength in opening or closing it.)\n"
                 + "ENTER: Call your escape dragon, which will arrive one minute after you call them and depart 30 seconds after that.\n"
                 + "\n"
                 + "As for the rest of your abilities, each one can be called by a different key on your keyboard (A-Z). "
@@ -600,7 +602,7 @@ public class Profiscendum extends JFrame implements KeyListener {
                 + "\n"
                 + "Instant fame:\n"
                 + "\n"
-                + "Temporary paralysis:\n"
+                + "Temporary leg-down paralysis: For 15 seconds, you cannot move yourself by means of legs.\n"
                 + "\n"
                 + "Coated in butter:\n"
                 + "\n"
@@ -627,7 +629,7 @@ public class Profiscendum extends JFrame implements KeyListener {
                 + "\n"
                 + "Turn into a butterfly:\n"
                 + "\n"
-                + "Turn into a sponge:\n");
+                + "Turn into a sponge: Turns you into a sponge which cannot move but also cannot be attacked.");
 
         howToPlayScroll = new JScrollPane(howToPlayArea);
         howToPlayScroll.setBorder(null);
@@ -779,19 +781,25 @@ public class Profiscendum extends JFrame implements KeyListener {
                 break;
             case "↑":
             case "UP":
+                if (MC.paralyzed) {
+                    MC.dy = 0;
+                    MC.verticalDirection = Direction.NONE;
+                    break;
+                }
                 if (MC.onSolidGround) {
                     MC.dy = 16;
                     MC.onSolidGround = false;
-                }
-                if (MC.imageChoice.value.equals("LADDER")) {
-                    MC.dy = 2;
                 }
                 MC.verticalDirection = Direction.UP;
                 break;
             case "↓":
             case "DOWN":
-                if (MC.imageChoice.value.equals("LADDER")) {
-                    MC.dy = -2;
+                if (MC.paralyzed) {
+                    if (MC.onSolidGround) {
+                        MC.dy = 0;
+                    }
+                    MC.verticalDirection = Direction.NONE;
+                    break;
                 }
                 else if (!MC.onSolidGround) {
                     MC.dy--;
@@ -802,19 +810,23 @@ public class Profiscendum extends JFrame implements KeyListener {
                 break;
             case "→":
             case "RIGHT":
-                if (MC.verticalDirection == Direction.DOWN) {
-                    MC.dx = 2;
-                } else {
-                    MC.dx = 5;
+                if (!MC.paralyzed) { //not paralyzed
+                    if (MC.verticalDirection == Direction.DOWN) {
+                        MC.dx = 2;
+                    } else {
+                        MC.dx = 5;
+                    }
                 }
                 MC.horizontalDirection = Direction.RIGHT;
                 break;
             case "←":
             case "LEFT":
-                if (MC.verticalDirection == Direction.DOWN) {
-                    MC.dx = -2;
-                } else {
-                    MC.dx = -5;
+                if (!MC.paralyzed) { //not paralyzed
+                    if (MC.verticalDirection == Direction.DOWN) {
+                        MC.dx = -2;
+                    } else {
+                        MC.dx = -5;
+                    }
                 }
                 MC.horizontalDirection = Direction.LEFT;
                 break;
@@ -864,10 +876,15 @@ public class Profiscendum extends JFrame implements KeyListener {
                     MC.dy++;
                 }
                 MC.onSolidGround = false;
-            } else if (input.equals(alphabet[11])) { //instant fame with the boys/girls/enbies (w/ chance of losing fame and not being able to regain it for a time) You have tried to game instant fame and failed miserably.
+            } else if (input.equals(alphabet[11])) { //instant fame with the boys/girls/others (w/ chance of losing fame and not being able to regain it for a time) You have tried to game instant fame and failed miserably.
                 //
             } else if (input.equals(alphabet[12])) { //temporary leg-down paralysis
-                //
+                randomLetterLabel.setText("Key " + input + " has caused you to experience temporary leg-down paralysis.");
+                MC.paralyzed = true;
+                MC.dx = 0;
+                MC.verticalDirection = Direction.NONE;
+                scheduler.cancel(MC, "unparalyze");
+                scheduler.add(MC, 15, "unparalyze");
             } else if (input.equals(alphabet[13])) { //coated you in butter - slide past closed doors, can’t climb ladders
                 //
             } else if (input.equals(alphabet[14])) { //tempt people to push you off a ledge
@@ -907,7 +924,21 @@ public class Profiscendum extends JFrame implements KeyListener {
             } else if (input.equals(alphabet[24])) { //turn into a butterfly
                 //
             } else if (input.equals(alphabet[25])) { //turn into a sponge
-                //
+                //if turning back into human
+                if (MC.imageChoice == ImageChoice.SPONGE) {
+                    randomLetterLabel.setText("Key " + input + " has caused you to turn back into a human.");
+                    MC.paralyzed = false;
+                    MC.imageChoice = (MC.horizontalDirection == Direction.LEFT) ? ImageChoice.LEFT : ImageChoice.RIGHT;
+                    mainPanel.remove(MC.spongeBlock);
+                }
+                //if turning into sponge
+                else {
+                    randomLetterLabel.setText("Key " + input + " has caused you to turn into a sponge.");
+                    MC.paralyzed = true;
+                    MC.dx = 0;
+                    MC.verticalDirection = Direction.NONE;
+                    MC.imageChoice = ImageChoice.SPONGE;
+                }
             }
         }
     }
