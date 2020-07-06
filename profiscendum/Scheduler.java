@@ -44,6 +44,10 @@ public class Scheduler {
                         break;
                     case "unparalyze":
                         ((MainCharacter) objects.get(i)).paralyzed = false;
+                        break;
+                    case "clean up butter":
+                        ((MainCharacter) objects.get(i)).buttermode = false;
+                        break;
                 }
                 indexes[0]++;
                 indexes[indexes[0]] = i;

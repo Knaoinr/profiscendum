@@ -604,7 +604,8 @@ public class Profiscendum extends JFrame implements KeyListener {
                 + "\n"
                 + "Temporary leg-down paralysis: For 15 seconds, you cannot move yourself by means of legs.\n"
                 + "\n"
-                + "Coated in butter:\n"
+                + "Coated in butter: For 15 seconds, you are so greasy and slippery that you can even walk through closed doors, "
+                + "but cannot climb ladders.\n"
                 + "\n"
                 + "Tempt people to push you off a ledge:\n"
                 + "\n"
@@ -614,7 +615,8 @@ public class Profiscendum extends JFrame implements KeyListener {
                 + "\n"
                 + "Distribute poison:\n"
                 + "\n"
-                + "Ghost mode:\n"
+                + "Ghost mode: Turns you into a ghost which can walk straight through any horizontal barrier. "
+                + "Does not make you immune to harm.\n"
                 + "\n"
                 + "Fire alarm:\n"
                 + "\n"
@@ -627,7 +629,8 @@ public class Profiscendum extends JFrame implements KeyListener {
                 + "\n"
                 + "Instant kill arrow:\n"
                 + "\n"
-                + "Turn into a butterfly:\n"
+                + "Turn into a butterfly: Turns you into a butterfly which can move anywhere you want and avoid projectiles more easily. "
+                + "Temporarily makes you twice as fragile.\n"
                 + "\n"
                 + "Turn into a sponge: Turns you into a sponge which cannot move but also cannot be attacked.");
 
@@ -748,6 +751,7 @@ public class Profiscendum extends JFrame implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         input = KeyEvent.getKeyText(e.getKeyCode()).toUpperCase();
+        System.out.println(input);
         switch (input) {
             case "␣":
             case "SPACE":
@@ -830,6 +834,11 @@ public class Profiscendum extends JFrame implements KeyListener {
                 }
                 MC.horizontalDirection = Direction.LEFT;
                 break;
+            case "⏎":
+            case "ENTER":
+            case "RETURN":
+                //TODO: call escape dragon
+                break;
             default:
             //if-else instead switch for keyboard
             if (input.equals(alphabet[0])) { //open random doors
@@ -876,8 +885,8 @@ public class Profiscendum extends JFrame implements KeyListener {
                     MC.dy++;
                 }
                 MC.onSolidGround = false;
-            } else if (input.equals(alphabet[11])) { //instant fame with the boys/girls/others (w/ chance of losing fame and not being able to regain it for a time) You have tried to game instant fame and failed miserably.
-                //
+            } else if (input.equals(alphabet[11])) { //instant fame with an arbitrary group of people
+                //(w/ chance of losing fame and not being able to regain it for a time) You have tried to gain instant fame and failed miserably.
             } else if (input.equals(alphabet[12])) { //temporary leg-down paralysis
                 randomLetterLabel.setText("Key " + input + " has caused you to experience temporary leg-down paralysis.");
                 MC.paralyzed = true;
@@ -886,7 +895,10 @@ public class Profiscendum extends JFrame implements KeyListener {
                 scheduler.cancel(MC, "unparalyze");
                 scheduler.add(MC, 15, "unparalyze");
             } else if (input.equals(alphabet[13])) { //coated you in butter - slide past closed doors, can’t climb ladders
-                //
+                randomLetterLabel.setText("Key " + input + " has caused you to spill butter all over yourself.");
+                MC.buttermode = true;
+                scheduler.cancel(MC, "clean up butter");
+                scheduler.add(MC, 15, "clean up butter");
             } else if (input.equals(alphabet[14])) { //tempt people to push you off a ledge
                 //
             } else if (input.equals(alphabet[15])) { //people form human bodyguard
@@ -896,7 +908,15 @@ public class Profiscendum extends JFrame implements KeyListener {
             } else if (input.equals(alphabet[17])) { //give out poison
                 //
             } else if (input.equals(alphabet[18])) { //ghost mode - walk through horizontal barriers
-                //
+                if (MC.ghostmode) {
+                    randomLetterLabel.setText("Key " + input + " has caused you to turn back into a human.");
+                    MC.ghostmode = false;
+                }
+                else {
+                    randomLetterLabel.setText("Key " + input + " has caused you to turn into a ghost.");
+                    MC.ghostmode = true;
+                    MC.paralyzed = false;
+                }
             } else if (input.equals(alphabet[19])) { //pull fire alarm in random building, cause panic
                 //
             } else if (input.equals(alphabet[20])) { //throw boomerang
@@ -922,7 +942,22 @@ public class Profiscendum extends JFrame implements KeyListener {
             } else if (input.equals(alphabet[23])) { //next arrow is instant kill arrow
                 //
             } else if (input.equals(alphabet[24])) { //turn into a butterfly
-                //
+                //if turning back into human
+                if (MC.imageChoice == ImageChoice.BUTTERFLYRIGHT || MC.imageChoice == ImageChoice.BUTTERFLYLEFT) {
+                    randomLetterLabel.setText("Key " + input + " has caused you to turn back into a human.");
+                    MC.paralyzed = false;
+                    MC.imageChoice = (MC.horizontalDirection == Direction.LEFT) ? ImageChoice.LEFT : ImageChoice.RIGHT;
+                    MC.ay = -2; //gravity is back
+                    MC.height = 30;
+                }
+                //if turning into butterfly
+                else {
+                    randomLetterLabel.setText("Key " + input + " has caused you to turn into a butterfly.");
+                    MC.imageChoice = (MC.horizontalDirection == Direction.LEFT) ? ImageChoice.BUTTERFLYLEFT : ImageChoice.BUTTERFLYRIGHT;
+                    MC.paralyzed = false;
+                    MC.ay = 0; //no gravity
+                    MC.height = 15;
+                }
             } else if (input.equals(alphabet[25])) { //turn into a sponge
                 //if turning back into human
                 if (MC.imageChoice == ImageChoice.SPONGE) {
@@ -934,10 +969,13 @@ public class Profiscendum extends JFrame implements KeyListener {
                 //if turning into sponge
                 else {
                     randomLetterLabel.setText("Key " + input + " has caused you to turn into a sponge.");
+                    scheduler.cancel(MC, "unparalyze");
                     MC.paralyzed = true;
                     MC.dx = 0;
                     MC.verticalDirection = Direction.NONE;
                     MC.imageChoice = ImageChoice.SPONGE;
+                    MC.ay = -2; //add gravity, just in case you were just a butterfly
+                    MC.height = 30;
                 }
             }
         }
@@ -950,14 +988,14 @@ public class Profiscendum extends JFrame implements KeyListener {
             case "↑":
             case "UP":
                 MC.verticalDirection = Direction.NONE;
-                if (MC.imageChoice.value.equals("LADDER")) {
+                if (MC.imageChoice.value.equals("LADDER") && !MC.buttermode) {
                     MC.dy = 0;
                 }
                 break;
             case "↓":
             case "DOWN":
                 MC.verticalDirection = Direction.NONE;
-                if (MC.imageChoice.value.equals("LADDER")) {
+                if (MC.imageChoice.value.equals("LADDER") && !MC.buttermode) {
                     MC.dy = 0;
                 }
                 break;

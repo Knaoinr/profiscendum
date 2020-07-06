@@ -8,6 +8,7 @@ import java.awt.Image;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Rectangle;
+import java.awt.AlphaComposite;
 import profiscendum.Profiscendum;
 import profiscendum.components.*;
 
@@ -83,16 +84,27 @@ public class Character extends JComponent {
                 for(int j = 0; j < comp.getComponentCount(); j++) {
                     //if intersects
                     Rectangle otherRect = Profiscendum.getRectangleRelativeTo((Container) comp.getComponent(j), mainPanel);
-                    if (selfRect.intersects(otherRect)) {
+                    if (selfRect.intersects(otherRect) && comp.getComponent(j) instanceof Ladder) {
+                        //if buttermode
+                        if (this instanceof MainCharacter) {
+                            if (((MainCharacter) this).buttermode) {
+                                //fall through top of ladder
+                                if (y + selfRect.height < otherRect.y + otherRect.height) {
+                                    ignoreVerticalBarriers = true;
+                                    dy += ay;
+                                }
+                                break;
+                            }
+                        }
                         //if at top of ladder
-                        if (comp.getComponent(j) instanceof Ladder && verticalDirection != Direction.DOWN && y + selfRect.height - otherRect.y < 5) {
+                        if (verticalDirection != Direction.DOWN && y + selfRect.height - otherRect.y < 5) {
                             onSolidGround = true;
                             y = otherRect.y - height + 1;
                             selfRect.y = y;
                             break;
                         }
                         //if on ladder
-                        else if (comp.getComponent(j) instanceof Ladder && y + selfRect.height < otherRect.y + otherRect.height) {
+                        else if (y + selfRect.height < otherRect.y + otherRect.height) {
                             ignoreVerticalBarriers = true;
                             if (verticalDirection == Direction.UP) {
                                 dy = 2;
@@ -157,6 +169,12 @@ public class Character extends JComponent {
                             }
                             //if trying to enter horizontally
                             if ((otherRect.x + comp.getComponent(j).getWidth()/2 > x + width/2) == (dx > 0) && selfRect.intersection(otherRect).height > 2) {
+                                //skip in ghost mode
+                                if (this instanceof MainCharacter) {
+                                    if (((MainCharacter) this).ghostmode) {
+                                        continue;
+                                    }
+                                }
                                 //no other component on that side
                                 if (dx > 0) { //right
                                     Component border = comp.getComponentAt(comp.getComponent(j).getX() - 1, comp.getComponent(j).getY() + otherRect.height/2);
@@ -184,6 +202,12 @@ public class Character extends JComponent {
                         }
                         //if door
                         else if (comp.getComponent(j) instanceof Door) {
+                            //if buttermode or ghostmode
+                            if (this instanceof MainCharacter) {
+                                if (((MainCharacter) this).buttermode || ((MainCharacter) this).ghostmode) {
+                                    continue;
+                                }
+                            }
                             //if closed
                             if (!((Door) comp.getComponent(j)).isOpen()) {
                                 //if you're beneath it
@@ -216,6 +240,19 @@ public class Character extends JComponent {
             }
         }
 
+        //vertical things for butterflies
+        if (this instanceof MainCharacter && !isVerticalBarrier) {
+            if (((MainCharacter) this).imageChoice == MainCharacter.ImageChoice.BUTTERFLYLEFT || ((MainCharacter) this).imageChoice == MainCharacter.ImageChoice.BUTTERFLYRIGHT) {
+                if (verticalDirection == Direction.UP) {
+                    dy = 3;
+                } else if (verticalDirection == Direction.DOWN) {
+                    dy = -3;
+                } else {
+                    dy = 0;
+                }
+            }
+        }
+
         if (!isHorizontalBarrier) {
             x += dx;
         }
@@ -242,6 +279,13 @@ public class Character extends JComponent {
 
     public void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
+        if (this instanceof MainCharacter) {
+            if (((MainCharacter) this).ghostmode) {
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+            } else {
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+            }
+        }
         g2d.drawImage(getImage(), 0, 0, null);
     }
 }
